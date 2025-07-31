@@ -19,6 +19,7 @@ class Settings:
     DB_URL: str | None = os.getenv("DB_URL")          # 예) mysql+asyncmy://user:pass@host/db
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
+    VWORLD_KEY = os.getenv("VWORLD_KEY")
 
 settings = Settings()
 
