@@ -13,7 +13,7 @@ from .features import (
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-def call_llm_and_route(query: str):
+async def call_llm_and_route(query: str):
     chat_resp = client.chat.completions.create(
         model=settings.OPENAI_MODEL,
         temperature=0,
@@ -43,6 +43,7 @@ def call_llm_and_route(query: str):
     elif tool_name == "generate_official_doc_pdf":
         return int(FeatureID.DOC_PDF), feature_2_doc_pdf(user_query)
     elif tool_name == "predict_fire_risk_map":
-        return int(FeatureID.MAP_PREDICT), feature_3_map_predict(user_query)
+        data = await feature_3_map_predict(user_query)    # ← await
+        return int(FeatureID.MAP_PREDICT), data
     else:
         return int(FeatureID.GENERAL_CHAT), feature_4_general_chat(user_query)
