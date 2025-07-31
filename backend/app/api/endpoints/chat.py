@@ -19,5 +19,5 @@ async def route_chat(req: ChatRequest):
     """
     if not req.query or not req.query.strip():
         raise HTTPException(status_code=400, detail="query는 비어 있을 수 없습니다.")
-    fn_no, data = call_llm_and_route(req.query)
+    fn_no, data = await call_llm_and_route(req.query)
     return {"functionNo": fn_no, "data": data}
