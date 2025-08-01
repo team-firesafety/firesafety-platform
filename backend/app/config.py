@@ -16,10 +16,15 @@ load_dotenv()
 class Settings:
 
     # 필수 값 ----------------------------------------------------------
-    DB_URL: str | None = os.getenv("DB_URL")          # 예) mysql+asyncmy://user:pass@host/db
+    # PostgreSQL 설정
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/fire_safety_db")
+    
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
     VWORLD_KEY = os.getenv("VWORLD_KEY")
+    
+    # AI 모델 설정(데이터 시각화)
+    MAX_QUERY_RESULTS: int = 100
 
 settings = Settings()
 
