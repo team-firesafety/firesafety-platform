@@ -1,6 +1,7 @@
 from typing import Dict, Any
 import time
 from .building_service import get_buildings_by_station
+from .rag_chat import get_full_answer
 
 def feature_1_visualization(query: str) -> Dict[str, Any]:
     return {"message": f"1번 기능 호출, 입력 쿼리: {query}"}
@@ -25,8 +26,14 @@ async def feature_3_map_predict(query: str) -> Dict[str, Any]:
     station = query.split(" ")[0].replace(" ", "")
     data = await get_buildings_by_station(station)
     # pydantic 모델 → dict 로 시리얼라이즈
-    return {"station": station, "buildings": [b.dict(by_alias=True) for b in data]}
+    return {"station": station, "buildings": [b.model_dump(by_alias=True) for b in data]}
 
 
 def feature_4_general_chat(query: str) -> Dict[str, Any]:
-    return {"message": f"4번 기능 호출, 입력 쿼리: {query}"}
+    """
+    Function‑Calling 라우팅(`/chat`)을 통해 호출될 때 사용됩니다.
+    - 요구 사항: **JSON 한 덩어리**로 응답
+    - 그래서 stream 대신 get_full_answer()로 ‘완결형 텍스트’를 생성합니다.
+    """
+    answer = get_full_answer(query)
+    return {"message": answer}
