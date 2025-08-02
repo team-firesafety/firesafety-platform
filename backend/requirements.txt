@@ -38,5 +38,9 @@ python-dotenv==1.0.1
 # 데이터 시각화 기능 추가 의존성
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
-pandas==2.1.3
 alembic==1.12.1
+langchain-openai==0.3.28      # LangChain-OpenAI 통합 패키지
+langchain-community==0.3.27   # 서드파티 LangChain 통합 모음
+faiss-cpu==1.11.0.post1       # CPU용 Faiss 벡터 검색 라이브러리
+tiktoken==0.9.0
+pandas==2.3.1
