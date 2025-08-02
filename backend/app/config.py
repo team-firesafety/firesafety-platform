@@ -17,7 +17,7 @@ class Settings:
 
     # 필수 값 ----------------------------------------------------------
     # PostgreSQL 설정
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost/fire_safety_db")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql+psycopg://postgres:password@localhost/fire_safety_db")
     
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")

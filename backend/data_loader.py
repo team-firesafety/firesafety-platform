@@ -5,8 +5,8 @@
 """
 
 import pandas as pd
-import psycopg2
-from psycopg2.extras import execute_values
+import psycopg
+from psycopg.rows import dict_row
 from pathlib import Path
 import os
 import logging
@@ -61,7 +61,9 @@ class FireSafetyDataLoader:
     def connect_db(self):
         """데이터베이스 연결"""
         try:
-            self.conn = psycopg2.connect(**self.db_config)
+            # psycopg3는 connection string을 사용
+            conninfo = f"host={self.db_config['host']} dbname={self.db_config['database']} user={self.db_config['user']} port={self.db_config['port']}"
+            self.conn = psycopg.connect(conninfo)
             logger.info("Database connected successfully")
         except Exception as e:
             logger.error(f"Database connection failed: {e}")
@@ -163,10 +165,11 @@ class FireSafetyDataLoader:
         # 컬럼명 정리
         columns = list(records[0].keys())
         
-        # INSERT SQL 생성 (psycopg2.extras.execute_values 사용)
+        # INSERT SQL 생성
+        placeholders = ', '.join(['%s'] * len(columns))
         sql = f"""
         INSERT INTO {table} ({', '.join(columns)})
-        VALUES %s
+        VALUES ({placeholders})
         ON CONFLICT DO NOTHING
         """
         
@@ -179,10 +182,8 @@ class FireSafetyDataLoader:
                 batch = records[i:i + batch_size]
                 values = [tuple(record.get(col) for col in columns) for record in batch]
                 
-                execute_values(
-                    cursor, sql, values,
-                    template=None, page_size=batch_size
-                )
+                # psycopg3에서는 executemany 사용
+                cursor.executemany(sql, values)
                 
                 inserted_count = cursor.rowcount
                 total_inserted += inserted_count

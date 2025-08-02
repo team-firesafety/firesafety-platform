@@ -7,6 +7,8 @@ from .visualization_metadata_service import VisualizationMetadataService
 import time
 import logging
 import json
+from decimal import Decimal
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -92,8 +94,17 @@ class VisualizationQueryService:
                     row_dict = {}
                     for i, col in enumerate(columns):
                         value = row[i]
-                        # JSON 데이터 처리
-                        if isinstance(value, dict):
+                        # JSON 직렬화 가능한 형태로 변환
+                        if isinstance(value, Decimal):
+                            # Decimal을 float으로 변환
+                            row_dict[col] = float(value)
+                        elif isinstance(value, datetime.datetime):
+                            # datetime을 ISO 문자열로 변환
+                            row_dict[col] = value.isoformat()
+                        elif isinstance(value, datetime.date):
+                            # date를 ISO 문자열로 변환
+                            row_dict[col] = value.isoformat()
+                        elif isinstance(value, dict):
                             row_dict[col] = value
                         elif col == 'attributes' and isinstance(value, str):
                             try:
