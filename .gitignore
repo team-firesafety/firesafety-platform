@@ -80,3 +80,6 @@ pg_data/
 tmp/
 temp/
 .tmp/
+
+# 대용량 데이터 파일 (259MB)
+backend/data/fire_safety_data/
