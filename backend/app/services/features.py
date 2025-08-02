@@ -4,7 +4,36 @@ from .building_service import get_buildings_by_station
 from .rag_chat import get_full_answer
 
 def feature_1_visualization(query: str) -> Dict[str, Any]:
-    return {"message": f"1번 기능 호출, 입력 쿼리: {query}"}
+    """데이터 시각화 기능 - 자연어로 소방 안전 데이터 조회"""
+    try:
+        from .visualization_query_service import VisualizationQueryService
+        from ..core.visualization_database import get_visualization_db_session
+        
+        # 데이터베이스 세션 생성
+        db = get_visualization_db_session()
+        
+        try:
+            # 쿼리 서비스 초기화
+            query_service = VisualizationQueryService(db)
+            
+            # 자연어 쿼리 실행
+            result = query_service.execute_natural_language_query(
+                question=query,
+                dataset_type=None,  # 자동 추론
+                limit=100
+            )
+            
+            return result
+            
+        finally:
+            db.close()
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": f"데이터 시각화 기능 실행 중 오류: {str(e)}"
+        }
 
 
 def feature_2_doc_pdf(query: str) -> Dict[str, Any]:
