@@ -101,13 +101,97 @@ VWORLD_KEY=your_vworld_api_key_here
 
 ### 3. 데이터베이스 설정
 
+#### 3.1 PostgreSQL 데이터베이스 생성
 ```bash
 # PostgreSQL 데이터베이스 생성
 createdb fire_safety_db
 
-# 데이터 로더를 사용하여 소방 데이터 import (선택사항)
-python data_loader.py --data-dir /path/to/csv/files
+# 또는 psql을 사용하여 생성
+psql -U postgres -c "CREATE DATABASE fire_safety_db;"
 ```
+
+#### 3.2 테이블 생성 (마이그레이션 실행)
+```bash
+cd backend
+
+# PostgreSQL에서 마이그레이션 SQL 실행
+psql -U postgres -d fire_safety_db -f migrations/visualization_schema.sql
+
+# 또는 파이프를 사용하여 실행
+cat migrations/visualization_schema.sql | psql -U postgres -d fire_safety_db
+```
+
+#### 3.3 초기 데이터 로드 (선택사항)
+data_loader.py를 사용하여 CSV 파일에서 소방 데이터를 가져올 수 있습니다.
+
+**⚠️ 데이터 파일 준비:**
+소방 데이터는 용량이 크기 때문에(259MB) Git 저장소에 포함되지 않습니다. 별도로 데이터를 준비해야 합니다.
+
+```bash
+# 데이터 폴더 생성
+mkdir -p backend/data/fire_safety_data
+
+# 소방 데이터 CSV 파일들을 다음 구조로 배치:
+backend/data/fire_safety_data/
+├── seoul_fire_dispatch/          # 서울 화재출동 현황
+│   ├── fire_dispatch_2021.csv
+│   ├── fire_dispatch_2022.csv
+│   ├── fire_dispatch_2023.csv
+│   └── fire_dispatch_2024.csv
+├── seoul_forest_fire_dispatch/   # 서울 임야화재 현황  
+│   ├── forest_fire_dispatch_2021.csv
+│   ├── forest_fire_dispatch_2022.csv
+│   ├── forest_fire_dispatch_2023.csv
+│   └── forest_fire_dispatch_2024.csv
+├── seoul_vehicle_fire_dispatch/  # 서울 차량화재 현황
+│   ├── vehicle_fire_dispatch_2021.csv
+│   ├── vehicle_fire_dispatch_2022.csv
+│   ├── vehicle_fire_dispatch_2023.csv
+│   └── vehicle_fire_dispatch_2024.csv
+├── seoul_rescue_dispatch/        # 서울 구조출동 현황
+│   ├── rescue_dispatch_2021.csv
+│   ├── rescue_dispatch_2022.csv
+│   ├── rescue_dispatch_2023.csv
+│   └── rescue_dispatch_2024.csv
+└── national_fire_status/         # 전국 화재현황
+    ├── national_fire_status_2019.csv
+    ├── national_fire_status_2020.csv
+    ├── national_fire_status_2021.csv
+    ├── national_fire_status_2022.csv
+    └── national_fire_status_2023.csv
+
+# 데이터 로더 실행
+cd backend
+python data_loader.py
+```
+
+**data_loader.py 설정:**
+- DB_CONFIG 내 `user` 필드를 본인 PostgreSQL 사용자명으로 수정
+- 데이터 경로는 자동으로 `backend/data/fire_safety_data`로 설정됨
+
+#### 3.4 RAG 챗봇 벡터스토어 생성 (일반 대화 기능용)
+기능 4번 일반 대화를 위한 RAG 챗봇이 사용할 벡터스토어를 생성합니다.
+
+```bash
+# 가상환경이 활성화된 상태에서 실행
+cd firesafety-platform  # 프로젝트 루트 디렉토리
+
+# 벡터스토어 생성 스크립트 실행
+python -m backend.scripts.build_vectorstore
+```
+
+**벡터스토어 생성 확인:**
+- `backend/vectorstore_FAISS/` 폴더가 생성됨
+- 내부에 `index.faiss`, `index.pkl` 파일이 생성되면 정상
+
+**필요 파일:**
+- `backend/data/상세정보_화재안전기술_상세정보.csv` 파일이 존재해야 함
+- 이 파일은 화재안전기술 관련 지식베이스로 사용됨
+
+**RAG 챗봇 특징:**
+- SSE(Server-Sent Events) + 마크다운 형식으로 실시간 스트리밍 응답
+- 화재·피난·방폭 등 한국형 소방안전기술 전문 지식 제공
+- 검색 기반 생성(RAG)으로 정확한 기술 정보 답변
 
 ### 4. 서버 실행
 
