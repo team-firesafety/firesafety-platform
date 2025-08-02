@@ -334,8 +334,8 @@ def main():
         'port': '5432'
     }
     
-    # 데이터 경로 (영어 폴더명으로 변경)
-    DATA_PATH = "/Users/suhong/Desktop/coding/fire_safety_data"
+    # 데이터 경로 (프로젝트 내부 경로)
+    DATA_PATH = str(Path(__file__).parent / "data" / "fire_safety_data")
     
     # 데이터 로더 초기화
     loader = FireSafetyDataLoader(DB_CONFIG)
