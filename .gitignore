@@ -1,6 +1,82 @@
+# 가상환경
 venv/
-.env
+fire-safety-env/
+env/
+ENV/
 
+# 환경 변수 파일
+.env
+.env.local
+.env.production
+
+# Python 캐시 파일
+__pycache__/
+*.py[cod]
+*.so
+*.pyo
+*.pyd
+.Python
+
+# 배포 파일
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# 단위 테스트 / 커버리지 보고서
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# IDE 설정 파일
 .idea/
 .vscode/
-__pycache__
+*.swp
+*.swo
+*~
+
+# OS 생성 파일
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 로그 파일
+*.log
+logs/
+
+# PostgreSQL 데이터
+*.db
+*.sqlite3
+pg_data/
+
+# 임시 파일
+tmp/
+temp/
+.tmp/
