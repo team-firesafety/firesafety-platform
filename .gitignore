@@ -1,19 +1,47 @@
-# Python
+# Python 가상환경 및 캐시
 venv/
 .venv/
-**/__pycache__/
+env/
+ENV/
+fire-safety-env/
+__pycache__/
 *.py[cod]
-*.pyd
 *.pyo
+*.pyd
+*.so
+.Python
+
+# 환경 변수 파일
 .env
+.env.local
+.env.production
 
-# Node/FE
-node_modules/
-dist/
+# 배포 관련 파일 및 빌드 디렉토리
 build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.spec
 
-# Logs
-logs
+# Node/Frontend 관련
+node_modules/
+dist-ssr/
+*.local
+
+# 로그 파일
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -21,21 +49,49 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# 테스트 및 커버리지
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
-# Editor directories and files
-**/.vscode/*
+# IDE 설정 파일
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
 
-# OS
+# OS 생성 파일
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# 데이터베이스 파일
+*.db
+*.sqlite3
+pg_data/
+
+# 임시 파일
+tmp/
+temp/
+.tmp/
+
+# 대용량 데이터 파일
+backend/data/fire_safety_data/
