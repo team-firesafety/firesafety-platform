@@ -1,59 +1,62 @@
 <template>
-  <div class="chat-page">
-    <!-- 헤더 -->
-    <AppHeader />
+  <div class="layout">
+    <Sidebar />
+    <div class="chat-page">
+      <!-- 헤더 -->
+      <AppHeader />
 
-    <!-- 메시지 영역 -->
-    <div class="messages" ref="messages">
-      <div
-          v-for="(msg, idx) in messages"
-          :key="idx"
-          :class="['message-wrapper', msg.from]"
-      >
-        <div :class="['message', msg.from]">
-          <!-- ① 로딩 -->
-          <template v-if="msg.loading">
-            <Loading />
-          </template>
+      <!-- 메시지 영역 -->
+      <div class="messages" ref="messages">
+        <div
+            v-for="(msg, idx) in messages"
+            :key="idx"
+            :class="['message-wrapper', msg.from]"
+        >
+          <div :class="['message', msg.from]">
+            <!-- ① 로딩 -->
+            <template v-if="msg.loading">
+              <Loading />
+            </template>
 
-          <!-- ② PDF -->
-          <template v-else-if="msg.pdf">
-            <div class="pdf-download">
-              <a :href="msg.url" :download="msg.filename">
-                <button class="pdf-btn">⬇ {{ msg.filename }}</button>
-              </a>
-            </div>
-          </template>
+            <!-- ② PDF -->
+            <template v-else-if="msg.pdf">
+              <div class="pdf-download">
+                <a :href="msg.url" :download="msg.filename">
+                  <button class="pdf-btn">⬇ {{ msg.filename }}</button>
+                </a>
+              </div>
+            </template>
 
-          <!-- ③ Markdown / Plain -->
-          <template v-else>
-            <div
-                v-if="msg.html"
-                class="markdown-content"
-                v-html="msg.html"
-            />
-            <p v-else class="plain-text">{{ msg.text }}</p>
-          </template>
+            <!-- ③ Markdown / Plain -->
+            <template v-else>
+              <div
+                  v-if="msg.html"
+                  class="markdown-content"
+                  v-html="msg.html"
+              />
+              <p v-else class="plain-text">{{ msg.text }}</p>
+            </template>
+          </div>
         </div>
       </div>
+
+      <!-- 입력창 -->
+      <ChatInput
+          @send="sendMessage"
+          bottom="40px"
+          class="chat-input"
+      />
+
+      <!-- 모달들 -->
+      <ModalVis v-if="showVisModal" :data="visResult" @close="onVisModalClose" />
+      <ModalPdf v-if="showPdfModal" :data="pdfResult" @close="onPdfModalClose" />
+      <ModalMap v-if="showMapModal" :data="mapResult" @close="onMapModalClose" />
     </div>
-
-    <!-- 입력창 -->
-    <ChatInput
-        @send="sendMessage"
-        bottom="40px"
-        class="chat-input"
-    />
-
-    <!-- 모달들 -->
-    <ModalVis v-if="showVisModal" :data="visResult" @close="onVisModalClose" />
-    <ModalPdf v-if="showPdfModal" :data="pdfResult" @close="onPdfModalClose" />
-    <ModalMap v-if="showMapModal" :data="mapResult" @close="onMapModalClose" />
   </div>
 </template>
 
 <script>
-import AppHeader from '@/components/Header.vue';
+import Sidebar from '@/components/Sidebar.vue';
 import ChatInput from './ChatInput.vue';
 import ModalVis from './Modal1.vue';
 import ModalPdf from './Modal2.vue';
@@ -74,7 +77,7 @@ const MAX_W = 900;            // 메시지/입력창 최대 폭 증가
 export default {
   name: 'ChatPage',
   components: {
-    AppHeader, ChatInput, ModalVis, ModalPdf, ModalMap, Loading,
+    Sidebar, ChatInput, ModalVis, ModalPdf, ModalMap, Loading,
   },
 
   data() {
@@ -273,6 +276,7 @@ export default {
 <style scoped>
 /* 전체 레이아웃 -------------------------------------------------- */
 .chat-page {
+  margin-left: 340px;
   position: relative;
   height: 100vh;
   background: #F8F9FA;

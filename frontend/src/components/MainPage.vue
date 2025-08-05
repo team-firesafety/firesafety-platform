@@ -1,7 +1,7 @@
 <template>
-  <div class="page">
-    <AppHeader />
-
+  <div class="layout">
+    <Sidebar />
+    <div class="page">
     <main class="main-content">
       <!-- 떠다니는 캐릭터 + 그림자 (종전 그대로) -->
       <div class="character-wrapper">
@@ -20,15 +20,16 @@
       <ChatInput @send="goToChat" bottom="160px"/>
     </main>
   </div>
+  </div>
 </template>
 
 <script>
-import AppHeader from '@/components/Header.vue'
 import ChatInput from '@/components/ChatInput.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
 export default {
   name: 'MainPage',
-  components: { AppHeader, ChatInput },
+  components: { Sidebar, ChatInput },
   methods: {
     goToChat(query) {
       // 입력된 텍스트를 쿼리파라미터로 전달하며 /chat 으로 이동
@@ -40,9 +41,15 @@ export default {
 </script>
 
 <style scoped>
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
 .page {
+  flex: 1;
   position: relative; 
-  width: 100vw;
+  margin-left: 340px;
   height: 100vh;
   display: flex;
   flex-direction: column;
