@@ -8,11 +8,11 @@
     <!-- 2) 메인 네비게이션 -->
     <nav class="nav-menu">
       <ul>
-        <li class="menu-item">
+        <li class="menu-item" @click="newChat">
           <img src="@/assets/chat.png" alt="" class="menu-icon" />
           <span class="menu-text">새 채팅</span>
         </li>
-        <li class="menu-item">
+        <li class="menu-item" @click="showIntroPage">
           <img src="@/assets/info.png" alt="" class="menu-icon" />
           <span class="menu-text">소담에 대해서</span>
         </li>
@@ -40,6 +40,7 @@
     <div class="sidebar-footer">
       소방 업무 지원 챗봇 v1.0
     </div>
+
   </aside>
 </template>
 
@@ -55,6 +56,14 @@ export default {
         '화재 신고 접수 절차',
         '화재 예방 점검 절차'
       ]
+    }
+  },
+  methods: {
+    showIntroPage() {
+      this.$emit('show-intro')
+    },
+    newChat() {
+      this.$emit('new-chat')
     }
   }
 }
