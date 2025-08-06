@@ -1,40 +1,56 @@
 <template>
   <div class="layout">
-    <Sidebar />
+    <Sidebar @show-intro="showIntroPage" @new-chat="hideIntroPage" />
     <div class="page">
-    <main class="main-content">
-      <!-- 떠다니는 캐릭터 + 그림자 (종전 그대로) -->
-      <div class="character-wrapper">
-        <img
-          class="character"
-          src="@/assets/character.png"
-          alt="Animated Character"
-        />
-        <div class="shadow"></div>
-      </div>
+      <!-- 소개페이지가 표시될 때 -->
+      <IntroPage v-if="isIntroVisible" />
+      
+      <!-- 기본 메인 컨텐츠 -->
+      <main v-else class="main-content">
+        <!-- 떠다니는 캐릭터 + 그림자 (종전 그대로) -->
+        <div class="character-wrapper">
+          <img
+            class="character"
+            src="@/assets/character.png"
+            alt="Animated Character"
+          />
+          <div class="shadow"></div>
+        </div>
 
-      <!-- 그라데이션 텍스트 -->
-      <p class="subtitle">필요하신 게 있을까요?</p>
+        <!-- 그라데이션 텍스트 -->
+        <p class="subtitle">필요하신 게 있을까요?</p>
 
-      <!-- 공통 ChatInput 컴포넌트 사용 -->
-      <ChatInput @send="goToChat" bottom="160px"/>
-    </main>
-  </div>
+        <!-- 공통 ChatInput 컴포넌트 사용 -->
+        <ChatInput @send="goToChat" bottom="160px"/>
+      </main>
+    </div>
   </div>
 </template>
 
 <script>
 import ChatInput from '@/components/ChatInput.vue'
 import Sidebar from '@/components/Sidebar.vue'
+import IntroPage from '@/components/IntroPage.vue'
 
 export default {
   name: 'MainPage',
-  components: { Sidebar, ChatInput },
+  components: { Sidebar, ChatInput, IntroPage },
+  data() {
+    return {
+      isIntroVisible: false
+    }
+  },
   methods: {
     goToChat(query) {
       // 입력된 텍스트를 쿼리파라미터로 전달하며 /chat 으로 이동
       console.log('MainPage goToChat 받은 텍스트:', query)
       this.$router.push({ name: 'Chat', query: { q: query } })
+    },
+    showIntroPage() {
+      this.isIntroVisible = true
+    },
+    hideIntroPage() {
+      this.isIntroVisible = false
     }
   }
 }
