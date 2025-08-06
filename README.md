@@ -1,69 +1,33 @@
-# 소담 (소방 업무를 담다) - Fire Safety Platform
+# 소담 (소방 업무를 담다) - AI 기반 소방 안전 통합 플랫폼
 
-종합 소방 업무 지원 플랫폼으로 4가지 핵심 기능을 제공합니다.
+AI 기반 소방 안전 통합 플랫폼으로, 4개의 핵심 기능을 제공합니다.
 
 ## 주요 기능
 
-### 1. 화재 위험 예측 지도 및 경로 추천
-- 실시간 화재 위험도 분석 및 시각화
-- 소방서별 관할 구역 및 최적 경로 제안
+### 1. 데이터 시각화 (AI-Powered Data Visualization)
+- **완전 한글 컬럼명**: 모든 데이터베이스 테이블이 `사망자수`, `재산피해액` 등 직관적인 한글 컬럼명으로 구성되어 있어 최고의 가독성과 개발 편의성을 제공합니다.
+- **자연어 쿼리**: GPT-4o를 활용해 "2024년 사망자가 발생한 화재"와 같은 자연어를 정확한 한글 컬럼 기반 SQL로 자동 변환합니다.
+- **차트 메타데이터 자동 생성**: 프론트엔드에서 즉시 차트를 그릴 수 있도록, 데이터와 함께 컬럼별 타입, 단위, 추천 차트 정보가 포함된 메타데이터를 자동으로 생성하여 반환합니다.
+- **통합 데이터 관리**: 서울 화재출동, 임야화재, 차량화재, 구조출동, 전국화재현황 등 다양한 소방 데이터를 통합 관리합니다.
 
-### 2. 공문서 작성
-- AI 기반 공문서 자동 생성
+### 2. 공문서 작성 (AI Document Generation)
+- AI 기반 소방 공문서 자동 생성
 - PDF 다운로드 기능
 
-### 3. 데이터 시각화 (Data Visualization)
-- **자연어 쿼리**: GPT-4o를 활용한 지능형 SQL 생성
-- **하이브리드 구조**: PostgreSQL 전용 테이블로 최적화된 성능
-- **통합 관리**: 서울 화재출동, 임야화재, 차량화재, 구조출동, 전국화재현황 데이터
-- **고성능 검색**: 400,000+ 레코드 실시간 조회
-- **자동 데이터셋 추론**: dataset_type 자동 선택 지원
+### 3. 화재 위험 예측 (Fire Risk Prediction)
+- 소방서별 관할 건물의 화재 위험도 예측
+- 지도 데이터 제공
 
-### 4. 일반 대화 (RAG)
-- 소방 관련 지식 기반 대화형 AI
+### 4. 일반 대화 (Conversational AI)
+- RAG(Retrieval-Augmented Generation) 기술을 활용한 소방 관련 지식 기반 질의응답
 
 ## 기술 스택
 
 - **Backend**: FastAPI (Python 3.9+)
-- **Database**: PostgreSQL 13+ (하이브리드 테이블 구조)
+- **Database**: PostgreSQL 13+ (한글 컬럼명 전용 테이블 구조)
 - **AI**: OpenAI GPT-4o API
-- **ORM**: SQLAlchemy 2.0
-- **Data Processing**: Pandas, Geopy
-- **Additional**: VWorld API, Shapely
-
-## 프로젝트 구조
-
-```
-firesafety-platform/
-├── backend/
-│   ├── app/
-│   │   ├── main.py                     # FastAPI 메인 애플리케이션
-│   │   ├── config.py                   # 통합 설정 관리
-│   │   ├── api/
-│   │   │   ├── router.py               # API 라우터 통합
-│   │   │   └── endpoints/              # 각 기능별 엔드포인트
-│   │   ├── core/
-│   │   │   ├── constants.py            # 상수 정의
-│   │   │   ├── function_setup.py       # LLM Function Calling 설정
-│   │   │   └── visualization_database.py # 데이터 시각화 DB 연결
-│   │   ├── models/
-│   │   │   └── visualization_models.py  # 데이터 시각화 모델
-│   │   ├── schemas/                    # Pydantic 스키마
-│   │   │   ├── building.py
-│   │   │   ├── chat_request.py
-│   │   │   ├── chat_response.py
-│   │   │   └── visualization_schemas.py
-│   │   └── services/
-│   │       ├── features.py             # 4개 기능 구현
-│   │       ├── function_caller.py      # LLM Function Calling
-│   │       ├── building_service.py     # 건물 정보 서비스
-│   │       ├── fire_risk.py           # 화재 위험도 계산
-│   │       ├── patrol_service.py      # 순찰 서비스
-│   │       └── visualization_*.py     # 데이터 시각화 서비스들
-│   ├── data_loader.py                 # 소방 데이터 로더
-│   └── requirements.txt
-└── README.md
-```
+- **Data Processing**: Pandas
+- **ORM**: SQLAlchemy 2.0 (일부 사용)
 
 ## 빠른 시작
 
@@ -75,9 +39,9 @@ git clone <repository-url>
 cd firesafety-platform/backend
 
 # 2. 가상환경 생성 및 활성화
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
-# venv\\Scripts\\activate  # Windows
+# venv\Scripts\activate  # Windows
 
 # 3. 의존성 설치
 pip install -r requirements.txt
@@ -85,11 +49,11 @@ pip install -r requirements.txt
 
 ### 2. 환경 변수 설정
 
-`.env` 파일을 생성하고 다음 설정을 추가하세요:
+`backend` 폴더에 `.env` 파일을 생성하고 다음 설정을 추가하세요:
 
 ```env
-# PostgreSQL 데이터베이스 (데이터 시각화용)
-DATABASE_URL=postgresql://username:password@localhost:5432/fire_safety_db
+# PostgreSQL 데이터베이스
+DATABASE_URL=postgresql://YOUR_USERNAME:YOUR_PASSWORD@localhost:5432/fire_safety_db
 
 # OpenAI API 키
 OPENAI_API_KEY=your_openai_api_key_here
@@ -99,201 +63,114 @@ OPENAI_MODEL=gpt-4o
 VWORLD_KEY=your_vworld_api_key_here
 ```
 
-### 3. 데이터베이스 설정
+### 3. 데이터베이스 초기 설정
 
 #### 3.1 PostgreSQL 데이터베이스 생성
 ```bash
-# PostgreSQL 데이터베이스 생성
-createdb fire_safety_db
-
-# 또는 psql을 사용하여 생성
-psql -U postgres -c "CREATE DATABASE fire_safety_db;"
+# YOUR_USERNAME을 실제 PostgreSQL 사용자명으로 변경하여 실행하세요.
+psql -U YOUR_USERNAME -c "CREATE DATABASE fire_safety_db;"
 ```
 
-#### 3.2 테이블 생성 (마이그레이션 실행)
+#### 3.2 테이블 스키마 생성
+한글 컬럼명으로 구성된 테이블들을 생성합니다.
 ```bash
 cd backend
 
-# PostgreSQL에서 마이그레이션 SQL 실행
-psql -U postgres -d fire_safety_db -f migrations/visualization_schema.sql
-
-# 또는 파이프를 사용하여 실행
-cat migrations/visualization_schema.sql | psql -U postgres -d fire_safety_db
+# YOUR_USERNAME을 실제 PostgreSQL 사용자명으로 변경하여 실행하세요.
+psql -U YOUR_USERNAME -d fire_safety_db -f migrations/visualization_schema.sql
 ```
 
-#### 3.3 초기 데이터 로드 (선택사항)
-data_loader.py를 사용하여 CSV 파일에서 소방 데이터를 가져올 수 있습니다.
+#### 3.3 초기 데이터 로드 (필수)
+데이터 시각화 기능을 사용하려면 반드시 초기 데이터를 로드해야 합니다. `data_loader.py`는 원본 CSV의 영어 컬럼명을 한글로 자동 변환하여 DB에 저장합니다.
 
-**⚠️ 데이터 파일 준비:**
-소방 데이터는 용량이 크기 때문에(259MB) Git 저장소에 포함되지 않습니다. 별도로 데이터를 준비해야 합니다.
+**1) 데이터 파일 준비**
+소방 데이터는 용량이 크기 때문에(259MB) Git 저장소에 포함되지 않습니다. 별도로 데이터를 다운로드하여 다음 구조로 배치해야 합니다.
 
 ```bash
-# 데이터 폴더 생성
-mkdir -p backend/data/fire_safety_data
+# backend/data 폴더가 없다면 생성
+mkdir -p backend/data
 
-# 소방 데이터 CSV 파일들을 다음 구조로 배치:
-backend/data/fire_safety_data/
-├── seoul_fire_dispatch/          # 서울 화재출동 현황
-│   ├── fire_dispatch_2021.csv
-│   ├── fire_dispatch_2022.csv
-│   ├── fire_dispatch_2023.csv
-│   └── fire_dispatch_2024.csv
-├── seoul_forest_fire_dispatch/   # 서울 임야화재 현황  
-│   ├── forest_fire_dispatch_2021.csv
-│   ├── forest_fire_dispatch_2022.csv
-│   ├── forest_fire_dispatch_2023.csv
-│   └── forest_fire_dispatch_2024.csv
-├── seoul_vehicle_fire_dispatch/  # 서울 차량화재 현황
-│   ├── vehicle_fire_dispatch_2021.csv
-│   ├── vehicle_fire_dispatch_2022.csv
-│   ├── vehicle_fire_dispatch_2023.csv
-│   └── vehicle_fire_dispatch_2024.csv
-├── seoul_rescue_dispatch/        # 서울 구조출동 현황
-│   ├── rescue_dispatch_2021.csv
-│   ├── rescue_dispatch_2022.csv
-│   ├── rescue_dispatch_2023.csv
-│   └── rescue_dispatch_2024.csv
-└── national_fire_status/         # 전국 화재현황
-    ├── national_fire_status_2019.csv
-    ├── national_fire_status_2020.csv
-    ├── national_fire_status_2021.csv
-    ├── national_fire_status_2022.csv
-    └── national_fire_status_2023.csv
+# 다운로드한 데이터 폴더를 backend/data/fire_safety_data 로 이동
+# 최종 경로는 다음과 같아야 합니다: backend/data/fire_safety_data/seoul_fire_dispatch/...
+```
 
-# 데이터 로더 실행
-cd backend
+**2) 데이터 로더 실행**
+`data_loader.py`는 `main` 함수에 설정된 `DB_CONFIG`의 사용자명(`suhong`)을 기반으로 실행됩니다. **스크립트 내 사용자명을 본인의 PostgreSQL 사용자명으로 수정하거나, 아래와 같이 `psql` 명령어와 동일한 사용자로 실행할 수 있도록 권한을 맞춰주세요.**
+
+```bash
+# backend 폴더에서 실행
 python data_loader.py
 ```
 
-**data_loader.py 설정:**
-- DB_CONFIG 내 `user` 필드를 본인 PostgreSQL 사용자명으로 수정
-- 데이터 경로는 자동으로 `backend/data/fire_safety_data`로 설정됨
-
-#### 3.4 RAG 챗봇 벡터스토어 생성 (일반 대화 기능용)
-기능 4번 일반 대화를 위한 RAG 챗봇이 사용할 벡터스토어를 생성합니다.
-
+#### 3.4 RAG 벡터스토어 생성 (일반 대화 기능용)
 ```bash
-# 가상환경이 활성화된 상태에서 실행
-cd firesafety-platform  # 프로젝트 루트 디렉토리
-
-# 벡터스토어 생성 스크립트 실행
+# 프로젝트 루트 디렉토리에서 실행
 python -m backend.scripts.build_vectorstore
 ```
-
-**벡터스토어 생성 확인:**
-- `backend/vectorstore_FAISS/` 폴더가 생성됨
-- 내부에 `index.faiss`, `index.pkl` 파일이 생성되면 정상
-
-**필요 파일:**
-- `backend/data/상세정보_화재안전기술_상세정보.csv` 파일이 존재해야 함
-- 이 파일은 화재안전기술 관련 지식베이스로 사용됨
-
-**RAG 챗봇 특징:**
-- SSE(Server-Sent Events) + 마크다운 형식으로 실시간 스트리밍 응답
-- 화재·피난·방폭 등 한국형 소방안전기술 전문 지식 제공
-- 검색 기반 생성(RAG)으로 정확한 기술 정보 답변
+- `backend/vectorstore_FAISS/` 폴더와 `index.faiss`, `index.pkl` 파일이 생성됩니다.
+- `backend/data/상세정보_화재안전기술_상세정보.csv` 파일이 필요합니다.
 
 ### 4. 서버 실행
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+cd backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-
-서버가 실행되면 다음 URL에서 확인할 수 있습니다:
-- **Swagger UI**: http://localhost:8080/docs (대화형 API 테스트)
-- **ReDoc**: http://localhost:8080/redoc (깔끔한 문서 뷰)
-- **헬스체크**: http://localhost:8080/ping
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
 ## API 사용법
 
-### 통합 채팅 엔드포인트
-모든 기능은 `/chat` 엔드포인트를 통해 자연어로 접근 가능합니다. OpenAI Function Calling이 자동으로 적절한 기능을 선택합니다.
+모든 기능은 `/chat` 엔드포인트를 통해 자연어로 접근 가능합니다.
 
-### 1. 데이터 시각화 기능 (functionNo: 1)
+### 데이터 시각화 기능 (functionNo: 1)
 
+**요청 예시:**
 ```bash
-# 예시 질문들
-curl -X POST "http://localhost:8080/chat" \
+curl -X POST "http://localhost:8000/chat" \
   -H "Content-Type: application/json" \
-  -d '{"query": "화재 데이터를 보여줘"}'
-
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "2021년 화재 발생 건수를 알려줘"}'
-
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "강남구에서 발생한 화재 현황"}'
+  -d '{"query": "강남소방서에서 발생한 화재 중 사망자가 있었던 사건들을 보여줘"}'
 ```
 
-### 2. 공문서 작성 기능 (functionNo: 2)
-
-```bash
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "화재 예방 점검 공문서 작성해줘"}'
-
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "소방시설 점검 결과 보고서 만들어줘"}'
-```
-
-### 3. 화재 위험 예측 기능 (functionNo: 3)
-
-```bash
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "종로 소방서 화재 예측 지도 그려줘"}'
-
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "강남소방서 관할 위험 건물 보여줘"}'
-```
-
-### 4. 일반 대화 기능 (functionNo: 4)
-
-```bash
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "소방 안전 관리에 대해 알려줘"}'
-
-curl -X POST "http://localhost:8080/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "화재 예방 방법은 뭐가 있을까?"}'
-```
-
-**응답 예시:**
+**응답 예시 (한글 컬럼명 및 차트 메타데이터 포함):**
 ```json
 {
   "functionNo": 1,
   "data": {
     "success": true,
-    "generated_sql": "SELECT * FROM seoul_fire_dispatch WHERE dth_cnt > 0 OR injpsn_cnt > 0 LIMIT 100",
-    "data": [...],
-    "total_count": 45,
-    "execution_time": 0.234
+    "generated_sql": "SELECT 소방서명, 발생일자, 사망자수, 부상자수, 재산피해액 FROM seoul_fire_dispatch WHERE 소방서명 = '강남소방서' AND 사망자수 > 0 LIMIT 100",
+    "data": [
+      {
+        "소방서명": "강남소방서",
+        "발생일자": "20240115",
+        "사망자수": 1,
+        "부상자수": 2,
+        "재산피해액": 85000
+      }
+    ],
+    "total_count": 1,
+    "columns_metadata": {
+      "소방서명": {"type": "categorical", "chart_usage": ["groupby", "filter"]},
+      "발생일자": {"type": "date", "chart_usage": ["x_axis"], "format": "YYYYMMDD"},
+      "사망자수": {"type": "numeric", "chart_usage": ["y_axis"], "unit": "명"},
+      "부상자수": {"type": "numeric", "chart_usage": ["y_axis"], "unit": "명"},
+      "재산피해액": {"type": "numeric", "chart_usage": ["y_axis"], "unit": "천원"}
+    },
+    "chart_recommendations": [
+      {
+        "type": "bar_chart",
+        "name": "지역별/원인별 분석",
+        "available_x_axis": ["소방서명"],
+        "available_y_axis": ["사망자수", "부상자수", "재산피해액"],
+        "description": "카테고리별 화재 발생 현황 비교"
+      }
+    ]
   }
 }
 ```
 
-### 기능별 동작
-
-- **"화재 예측 지도 그려줘"** → 기능 3 (지도 예측)
-- **"공문서 작성해줘"** → 기능 2 (PDF 생성)
-- **"화재 데이터 분석해줘"** → 기능 1 (데이터 시각화)
-- **"소방 관련 질문"** → 기능 4 (일반 대화)
-
-## 데이터 시각화 기능 상세
-
-### 지원 데이터셋
-- **서울 화재출동 현황** (28,266+ records)
-- **서울 임야화재 출동** 
-- **서울 차량화재 출동**
-- **서울 구조출동 현황** (193,951+ records)
-- **전국 화재현황 통계**
-
 ### 데이터 시각화 자연어 쿼리 예시
-- "2024년 사상자가 발생한 화재사고를 보여줘"
-- "강남소방서 관할 화재 출동 현황은?"
+- "2024년 사망자가 발생한 화재사고를 보여줘"
+- "소방서별 화재 발생 건수"
 - "아파트 화재 중 재산피해가 가장 큰 사건은?"
-- "최근 한 달간 구조출동 통계를 알려줘"
+- "전기적 요인으로 발생한 화재 통계"
