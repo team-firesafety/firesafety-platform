@@ -1,7 +1,12 @@
 from typing import Dict, Any
 import time
-from .building_service import get_buildings_by_station
+import re, asyncio
+CENTER_RE = re.compile(r"([\w가-힣]+)\s*119\s*안전센터")
 from .rag_chat import get_full_answer
+import re
+from .mock_firestation_service import get_buildings_by_station   # ← 변경
+
+ST_RE = re.compile(r"([\w가-힣]+)\s*소방서")   # “종로소방서” 등
 
 def feature_1_visualization(query: str) -> Dict[str, Any]:
     """데이터 시각화 기능 - 자연어로 소방 안전 데이터 조회"""
@@ -49,13 +54,18 @@ def feature_2_doc_pdf(query: str) -> Dict[str, Any]:
 
 async def feature_3_map_predict(query: str) -> Dict[str, Any]:
     """
-    예) '종로 소방서 화재 예측 지도 그려줘' → station='종로소방서'
-    간단 문자열 파싱만(공백 제거) 적용
+    화재 예측 지도 → 소방서 위치 + 건물 리스트 반환 (MOCK)
     """
-    station = query.split(" ")[0].replace(" ", "")
-    data = await get_buildings_by_station(station)
-    # pydantic 모델 → dict 로 시리얼라이즈
-    return {"station": station, "buildings": [b.model_dump(by_alias=True) for b in data]}
+    m = ST_RE.search(query)
+    # 소방서 언급이 없으면 그래도 종로소방서 데이터 반환
+    station = (m.group(1) + "소방서") if m else "종로소방서"
+
+    station_info, buildings = await get_buildings_by_station(station)
+
+    return {
+        "station": station_info,                                # {name, lon, lat}
+        "buildings": [b.model_dump(by_alias=True) for b in buildings],
+    }
 
 
 def feature_4_general_chat(query: str) -> Dict[str, Any]:

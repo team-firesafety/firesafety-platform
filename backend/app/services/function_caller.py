@@ -1,5 +1,6 @@
 # app/services/function_caller.py
 import json
+from openai import AsyncOpenAI
 from fastapi import HTTPException
 from openai import OpenAI
 from ..config import settings
@@ -10,8 +11,7 @@ from .features import (
     feature_2_doc_pdf,
     feature_3_map_predict,
 )
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 async def call_llm_and_route(query: str):
     """
@@ -19,9 +19,10 @@ async def call_llm_and_route(query: str):
     - 기능 1·2·3: 실제 데이터까지 계산해서 반환
     - 기능 4    : 데이터 계산 X (RAG + 스트림을 엔드포인트에서 처리)
     """
-    chat_resp = client.chat.completions.create(
+    chat_resp = await client.chat.completions.create(  # await 사용
         model=settings.OPENAI_MODEL,
         temperature=0,
+        timeout=50,
         tool_choice="auto",
         tools=TOOLS,
         messages=[
