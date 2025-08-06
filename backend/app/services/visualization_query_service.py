@@ -4,6 +4,7 @@ from sqlalchemy import text, func
 from ..models.visualization_models import FireSafetyData
 from .visualization_ai_service import VisualizationAIQueryService
 from .visualization_metadata_service import VisualizationMetadataService
+from .column_mapping_service import ColumnMappingService
 import time
 import logging
 import json
@@ -54,6 +55,9 @@ class VisualizationQueryService:
             
             execution_time = time.time() - start_time
             
+            # 메타데이터 생성
+            response_metadata = ColumnMappingService.build_response_metadata(data)
+            
             return {
                 "success": True,
                 "generated_sql": generated_sql,
@@ -65,7 +69,11 @@ class VisualizationQueryService:
                     "dataset_type": dataset_type,
                     "explanation": explanation,
                     "ai_context": ai_result.get("context_used", "")
-                }
+                },
+                # 차트 생성을 위한 메타데이터 추가
+                "columns_metadata": response_metadata["columns_metadata"],
+                "chart_recommendations": response_metadata["chart_recommendations"],
+                "available_columns": response_metadata["available_columns"]
             }
             
         except Exception as e:

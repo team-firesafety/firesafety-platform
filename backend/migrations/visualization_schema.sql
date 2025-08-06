@@ -1,11 +1,23 @@
 -- ================================
--- 🔥 Fire Safety Data Query API
--- 하이브리드 테이블 구조 마이그레이션
+-- 🔥 Korean-Only Fire Safety Schema
+-- 한글 컬럼명 전용 소방 안전 데이터 스키마
 -- ================================
 
--- 기존 테이블 삭제 (필요시)
+-- 기존 모든 테이블 삭제
 DROP TABLE IF EXISTS fire_safety_data CASCADE;
 DROP TABLE IF EXISTS dataset_schemas CASCADE;
+DROP TABLE IF EXISTS seoul_fire_dispatch CASCADE;
+DROP TABLE IF EXISTS seoul_forest_fire_dispatch CASCADE;  
+DROP TABLE IF EXISTS seoul_vehicle_fire_dispatch CASCADE;
+DROP TABLE IF EXISTS seoul_rescue_dispatch CASCADE;
+DROP TABLE IF EXISTS national_fire_status CASCADE;
+
+-- 한글 테이블들도 삭제 (새로 생성)
+DROP TABLE IF EXISTS seoul_fire_dispatch_kr CASCADE;
+DROP TABLE IF EXISTS seoul_forest_fire_dispatch_kr CASCADE;
+DROP TABLE IF EXISTS seoul_vehicle_fire_dispatch_kr CASCADE;  
+DROP TABLE IF EXISTS seoul_rescue_dispatch_kr CASCADE;
+DROP TABLE IF EXISTS national_fire_status_kr CASCADE;
 
 -- ================================
 -- 1. 메타데이터 테이블 (개선된 버전)
@@ -30,376 +42,376 @@ CREATE INDEX idx_dataset_schemas_category ON dataset_schemas(data_category);
 CREATE INDEX idx_dataset_schemas_keywords ON dataset_schemas USING gin(keywords);
 
 -- ================================
--- 2. 서울 화재출동 현황 (건축물)
+-- 2. 서울 화재출동 현황 (한글 컬럼명)
 -- ================================
 CREATE TABLE seoul_fire_dispatch (
-    id SERIAL PRIMARY KEY,
-    year INTEGER NOT NULL,
-    wrinv_no VARCHAR(50) NOT NULL,
-    fire_type_nm VARCHAR(100),
-    bldg_srtfrm_nm VARCHAR(100),
-    bldg_strctr_nm VARCHAR(100),
-    bldg_srtrf_nm VARCHAR(100),
-    bldg_rscu_dngct INTEGER,
-    grnd_nofl INTEGER,
-    udgd_nofl INTEGER,
-    gfa NUMERIC,
-    bttm_area NUMERIC,
-    bldg_stts_nm VARCHAR(50),
-    dth_cnt INTEGER DEFAULT 0,
-    injpsn_cnt INTEGER DEFAULT 0,
-    hnl_dam_cnt INTEGER DEFAULT 0,
-    prpt_dam_amt BIGINT DEFAULT 0,
-    ocrn_yr INTEGER,
-    seasn_nm VARCHAR(20),
-    qtr_no INTEGER,
-    ocrn_ymd VARCHAR(20),
-    ocrn_tm VARCHAR(20),
-    ocrn_mm INTEGER,
-    ocrn_day INTEGER,
-    ocrn_hr INTEGER,
-    ocrn_mn INTEGER,
-    dclr_dow VARCHAR(20),
-    frstn_nm VARCHAR(100),
-    cntr_nm VARCHAR(100),
-    lfdau_nm VARCHAR(100),
-    dspt_req_tm VARCHAR(20),
-    fire_supesn_req_tm VARCHAR(20),
-    grnds_ctpv_nm VARCHAR(50),
-    grnds_sgg_nm VARCHAR(50),
-    cty_frmvl_se_nm VARCHAR(50),
-    damg_rgn_lot NUMERIC,
-    damg_rgn_lat NUMERIC,
-    grnds_dstnc NUMERIC,
-    cntr_grnds_dstnc NUMERIC,
-    lfdau_grnds_dstnc NUMERIC,
-    igtn_htsrc_lclsf_nm VARCHAR(100),
-    igtn_htsrc_sclsf_nm VARCHAR(100),
-    igtn_dmnt_lclsf_nm VARCHAR(100),
-    igtn_dmnt_sclsf_nm VARCHAR(100),
-    frst_igobj_lclsf_nm VARCHAR(100),
-    frst_igobj_sclsf_nm VARCHAR(100),
-    igtn_istr_lclsf_nm VARCHAR(100),
-    igtn_istr_sclsf_nm VARCHAR(100),
-    cmbs_expobj_lclsf_nm VARCHAR(100),
-    cmbs_expobj_sclsf_nm VARCHAR(100),
-    fclt_plc_lclsf_nm VARCHAR(100),
-    fclt_plc_mclsf_nm VARCHAR(100),
-    fclt_plc_sclsf_nm VARCHAR(100),
-    igtn_flr_nm VARCHAR(50),
-    so_area NUMERIC,
-    fire_insrnc_oblg_join_trgt_yn CHAR(1),
-    arson_mng_trgt_yn CHAR(1),
-    mub_yn CHAR(1),
-    emrg_cntrl_yn CHAR(1),
-    igtn_plc_nm VARCHAR(100),
-    vhcl_igtn_pstn_nm VARCHAR(100),
-    fnd_fire_se_nm VARCHAR(100),
-    fnd_fire_igtn_brnch_nm VARCHAR(100),
-    hr_unit_artmp NUMERIC,
-    hr_unit_rn NUMERIC,
-    hr_unit_wspd NUMERIC,
-    hr_unit_wndrct INTEGER,
-    hr_unit_hum NUMERIC,
-    hr_unit_snwfl NUMERIC,
-    hr_unit_vsdst NUMERIC,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    ID SERIAL PRIMARY KEY,
+    연도 INTEGER NOT NULL,
+    화재조사번호 VARCHAR(50) NOT NULL,
+    화재유형명 VARCHAR(100),
+    건물주구조형태명 VARCHAR(100),
+    건물구조명 VARCHAR(100),
+    건물지붕구조명 VARCHAR(100),
+    건물위험등급 INTEGER,
+    지상층수 INTEGER,
+    지하층수 INTEGER,
+    연면적 NUMERIC,
+    바닥면적 NUMERIC,
+    건물상태명 VARCHAR(50),
+    사망자수 INTEGER DEFAULT 0,
+    부상자수 INTEGER DEFAULT 0,
+    인명피해수 INTEGER DEFAULT 0,
+    재산피해액 BIGINT DEFAULT 0,
+    발생연도 INTEGER,
+    계절명 VARCHAR(20),
+    분기 INTEGER,
+    발생일자 VARCHAR(20),
+    발생시각 VARCHAR(20),
+    발생월 INTEGER,
+    발생일 INTEGER,
+    발생시 INTEGER,
+    발생분 INTEGER,
+    신고요일 VARCHAR(20),
+    소방서명 VARCHAR(100),
+    센터명 VARCHAR(100),
+    ladder차량명 VARCHAR(100),
+    출동요청시각 VARCHAR(20),
+    화재진압요청시각 VARCHAR(20),
+    현장시도명 VARCHAR(50),
+    현장시군구명 VARCHAR(50),
+    도시농촌구분명 VARCHAR(50),
+    피해지역경도 NUMERIC,
+    피해지역위도 NUMERIC,
+    현장거리 NUMERIC,
+    센터현장거리 NUMERIC,
+    ladder차량현장거리 NUMERIC,
+    점화열원대분류명 VARCHAR(100),
+    점화열원소분류명 VARCHAR(100),
+    점화물대분류명 VARCHAR(100),
+    점화물소분류명 VARCHAR(100),
+    최초점화물대분류명 VARCHAR(100),
+    최초점화물소분류명 VARCHAR(100),
+    점화인자대분류명 VARCHAR(100),
+    점화인자소분류명 VARCHAR(100),
+    연소확대물대분류명 VARCHAR(100),
+    연소확대물소분류명 VARCHAR(100),
+    시설장소대분류명 VARCHAR(100),
+    시설장소중분류명 VARCHAR(100),
+    시설장소소분류명 VARCHAR(100),
+    점화층명 VARCHAR(50),
+    소실면적 NUMERIC,
+    화재보험의무가입대상여부 CHAR(1),
+    방화관리대상여부 CHAR(1),
+    다중이용업소여부 CHAR(1),
+    응급제어여부 CHAR(1),
+    점화장소명 VARCHAR(100),
+    차량점화위치명 VARCHAR(100),
+    화재발견구분명 VARCHAR(100),
+    화재발견점화부위명 VARCHAR(100),
+    시간당기온 NUMERIC,
+    시간당강수량 NUMERIC,
+    시간당풍속 NUMERIC,
+    시간당풍향 INTEGER,
+    시간당습도 NUMERIC,
+    시간당강설량 NUMERIC,
+    시간당가시거리 NUMERIC,
+    생성일시 TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 서울 화재출동 인덱스
-CREATE INDEX idx_seoul_fire_dispatch_year ON seoul_fire_dispatch(year);
-CREATE INDEX idx_seoul_fire_dispatch_date ON seoul_fire_dispatch(ocrn_ymd);
-CREATE INDEX idx_seoul_fire_dispatch_station ON seoul_fire_dispatch(frstn_nm);
-CREATE INDEX idx_seoul_fire_dispatch_type ON seoul_fire_dispatch(fire_type_nm);
-CREATE INDEX idx_seoul_fire_dispatch_casualties ON seoul_fire_dispatch(dth_cnt, injpsn_cnt);
-CREATE INDEX idx_seoul_fire_dispatch_damage ON seoul_fire_dispatch(prpt_dam_amt);
+-- 인덱스 생성
+CREATE INDEX idx_seoul_fire_dispatch_연도 ON seoul_fire_dispatch(연도);
+CREATE INDEX idx_seoul_fire_dispatch_발생일자 ON seoul_fire_dispatch(발생일자);
+CREATE INDEX idx_seoul_fire_dispatch_소방서명 ON seoul_fire_dispatch(소방서명);
+CREATE INDEX idx_seoul_fire_dispatch_화재유형명 ON seoul_fire_dispatch(화재유형명);
+CREATE INDEX idx_seoul_fire_dispatch_피해 ON seoul_fire_dispatch(사망자수, 부상자수);
+CREATE INDEX idx_seoul_fire_dispatch_재산피해액 ON seoul_fire_dispatch(재산피해액);
 
 -- ================================
 -- 3. 서울 임야 화재출동 현황
 -- ================================
 CREATE TABLE seoul_forest_fire_dispatch (
-    id SERIAL PRIMARY KEY,
-    year INTEGER NOT NULL,
-    wrinv_no VARCHAR(50) NOT NULL,
-    fire_type_nm VARCHAR(100),
-    dth_cnt INTEGER DEFAULT 0,
-    injpsn_cnt INTEGER DEFAULT 0,
-    hnl_dam_cnt INTEGER DEFAULT 0,
-    prpt_dam_amt BIGINT DEFAULT 0,
-    ocrn_yr INTEGER,
-    seasn_nm VARCHAR(20),
-    qtr_no INTEGER,
-    ocrn_ymd VARCHAR(20),
-    ocrn_tm VARCHAR(20),
-    ocrn_mm INTEGER,
-    ocrn_day INTEGER,
-    ocrn_hr INTEGER,
-    ocrn_mn INTEGER,
-    dclr_dow VARCHAR(20),
-    frstn_nm VARCHAR(100),
-    cntr_nm VARCHAR(100),
-    lfdau_nm VARCHAR(100),
-    dspt_req_tm VARCHAR(20),
-    fire_supesn_req_tm VARCHAR(20),
-    grnds_ctpv_nm VARCHAR(50),
-    grnds_sgg_nm VARCHAR(50),
-    cty_frmvl_se_nm VARCHAR(50),
-    damg_rgn_lot NUMERIC,
-    damg_rgn_lat NUMERIC,
-    grnds_dstnc NUMERIC,
-    cntr_grnds_dstnc NUMERIC,
-    lfdau_grnds_dstnc NUMERIC,
-    igtn_htsrc_lclsf_nm VARCHAR(100),
-    igtn_htsrc_sclsf_nm VARCHAR(100),
-    igtn_dmnt_lclsf_nm VARCHAR(100),
-    igtn_dmnt_sclsf_nm VARCHAR(100),
-    frst_igobj_lclsf_nm VARCHAR(100),
-    frst_igobj_sclsf_nm VARCHAR(100),
-    igtn_istr_lclsf_nm VARCHAR(100),
-    igtn_istr_sclsf_nm VARCHAR(100),
-    cmbs_expobj_lclsf_nm VARCHAR(100),
-    cmbs_expobj_sclsf_nm VARCHAR(100),
-    fclt_plc_lclsf_nm VARCHAR(100),
-    fclt_plc_mclsf_nm VARCHAR(100),
-    fclt_plc_sclsf_nm VARCHAR(100),
-    fnd_fire_se_nm VARCHAR(100),
-    fnd_fire_igtn_brnch_nm VARCHAR(100),
+    ID SERIAL PRIMARY KEY,
+    연도 INTEGER NOT NULL,
+    화재조사번호 VARCHAR(50) NOT NULL,
+    화재유형명 VARCHAR(100),
+    사망자수 INTEGER DEFAULT 0,
+    부상자수 INTEGER DEFAULT 0,
+    인명피해수 INTEGER DEFAULT 0,
+    재산피해액 BIGINT DEFAULT 0,
+    발생연도 INTEGER,
+    계절명 VARCHAR(20),
+    분기 INTEGER,
+    발생일자 VARCHAR(20),
+    발생시각 VARCHAR(20),
+    발생월 INTEGER,
+    발생일 INTEGER,
+    발생시 INTEGER,
+    발생분 INTEGER,
+    신고요일 VARCHAR(20),
+    소방서명 VARCHAR(100),
+    센터명 VARCHAR(100),
+    ladder차량명 VARCHAR(100),
+    출동요청시각 VARCHAR(20),
+    화재진압요청시각 VARCHAR(20),
+    현장시도명 VARCHAR(50),
+    현장시군구명 VARCHAR(50),
+    도시농촌구분명 VARCHAR(50),
+    피해지역경도 NUMERIC,
+    피해지역위도 NUMERIC,
+    현장거리 NUMERIC,
+    센터현장거리 NUMERIC,
+    ladder차량현장거리 NUMERIC,
+    점화열원대분류명 VARCHAR(100),
+    점화열원소분류명 VARCHAR(100),
+    점화물대분류명 VARCHAR(100),
+    점화물소분류명 VARCHAR(100),
+    최초점화물대분류명 VARCHAR(100),
+    최초점화물소분류명 VARCHAR(100),
+    점화인자대분류명 VARCHAR(100),
+    점화인자소분류명 VARCHAR(100),
+    연소확대물대분류명 VARCHAR(100),
+    연소확대물소분류명 VARCHAR(100),
+    시설장소대분류명 VARCHAR(100),
+    시설장소중분류명 VARCHAR(100),
+    시설장소소분류명 VARCHAR(100),
+    화재발견구분명 VARCHAR(100),
+    화재발견점화부위명 VARCHAR(100),
     -- 기상정보 (임야화재 특화)
-    hr_unit_artmp NUMERIC,
-    hr_unit_rn NUMERIC,
-    hr_unit_wspd NUMERIC,
-    hr_unit_wndrct INTEGER,
-    hr_unit_hum NUMERIC,
-    hr_unit_snwfl NUMERIC,
-    hr_unit_vsdst NUMERIC,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    시간당기온 NUMERIC,
+    시간당강수량 NUMERIC,
+    시간당풍속 NUMERIC,
+    시간당풍향 INTEGER,
+    시간당습도 NUMERIC,
+    시간당강설량 NUMERIC,
+    시간당가시거리 NUMERIC,
+    생성일시 TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 서울 임야화재 인덱스
-CREATE INDEX idx_seoul_forest_fire_year ON seoul_forest_fire_dispatch(year);
-CREATE INDEX idx_seoul_forest_fire_date ON seoul_forest_fire_dispatch(ocrn_ymd);
-CREATE INDEX idx_seoul_forest_fire_station ON seoul_forest_fire_dispatch(frstn_nm);
-CREATE INDEX idx_seoul_forest_fire_casualties ON seoul_forest_fire_dispatch(dth_cnt, injpsn_cnt);
-CREATE INDEX idx_seoul_forest_fire_weather ON seoul_forest_fire_dispatch(hr_unit_artmp, hr_unit_wspd);
+-- 인덱스 생성
+CREATE INDEX idx_seoul_forest_fire_연도 ON seoul_forest_fire_dispatch(연도);
+CREATE INDEX idx_seoul_forest_fire_발생일자 ON seoul_forest_fire_dispatch(발생일자);
+CREATE INDEX idx_seoul_forest_fire_소방서명 ON seoul_forest_fire_dispatch(소방서명);
+CREATE INDEX idx_seoul_forest_fire_피해 ON seoul_forest_fire_dispatch(사망자수, 부상자수);
+CREATE INDEX idx_seoul_forest_fire_기상 ON seoul_forest_fire_dispatch(시간당기온, 시간당풍속);
 
 -- ================================
 -- 4. 서울 차량 화재출동 현황
 -- ================================
 CREATE TABLE seoul_vehicle_fire_dispatch (
-    id SERIAL PRIMARY KEY,
-    year INTEGER NOT NULL,
-    wrinv_no VARCHAR(50) NOT NULL,
-    fire_type_nm VARCHAR(100),
-    dth_cnt INTEGER DEFAULT 0,
-    injpsn_cnt INTEGER DEFAULT 0,
-    hnl_dam_cnt INTEGER DEFAULT 0,
-    prpt_dam_amt BIGINT DEFAULT 0,
-    ocrn_yr INTEGER,
-    seasn_nm VARCHAR(20),
-    qtr_no INTEGER,
-    ocrn_ymd VARCHAR(20),
-    ocrn_tm VARCHAR(20),
-    ocrn_mm INTEGER,
-    ocrn_day INTEGER,
-    ocrn_hr INTEGER,
-    ocrn_mn INTEGER,
-    dclr_dow VARCHAR(20),
-    frstn_nm VARCHAR(100),
-    cntr_nm VARCHAR(100),
-    lfdau_nm VARCHAR(100),
-    dspt_req_tm VARCHAR(20),
-    fire_supesn_req_tm VARCHAR(20),
-    grnds_ctpv_nm VARCHAR(50),
-    grnds_sgg_nm VARCHAR(50),
-    cty_frmvl_se_nm VARCHAR(50),
-    damg_rgn_lot NUMERIC,
-    damg_rgn_lat NUMERIC,
-    grnds_dstnc NUMERIC,
-    cntr_grnds_dstnc NUMERIC,
-    lfdau_grnds_dstnc NUMERIC,
-    igtn_htsrc_lclsf_nm VARCHAR(100),
-    igtn_htsrc_sclsf_nm VARCHAR(100),
-    igtn_dmnt_lclsf_nm VARCHAR(100),
-    igtn_dmnt_sclsf_nm VARCHAR(100),
-    frst_igobj_lclsf_nm VARCHAR(100),
-    frst_igobj_sclsf_nm VARCHAR(100),
-    igtn_istr_lclsf_nm VARCHAR(100),
-    igtn_istr_sclsf_nm VARCHAR(100),
-    cmbs_expobj_lclsf_nm VARCHAR(100),
-    cmbs_expobj_sclsf_nm VARCHAR(100),
-    fclt_plc_lclsf_nm VARCHAR(100),
-    fclt_plc_mclsf_nm VARCHAR(100),
-    fclt_plc_sclsf_nm VARCHAR(100),
+    ID SERIAL PRIMARY KEY,
+    연도 INTEGER NOT NULL,
+    화재조사번호 VARCHAR(50) NOT NULL,
+    화재유형명 VARCHAR(100),
+    사망자수 INTEGER DEFAULT 0,
+    부상자수 INTEGER DEFAULT 0,
+    인명피해수 INTEGER DEFAULT 0,
+    재산피해액 BIGINT DEFAULT 0,
+    발생연도 INTEGER,
+    계절명 VARCHAR(20),
+    분기 INTEGER,
+    발생일자 VARCHAR(20),
+    발생시각 VARCHAR(20),
+    발생월 INTEGER,
+    발생일 INTEGER,
+    발생시 INTEGER,
+    발생분 INTEGER,
+    신고요일 VARCHAR(20),
+    소방서명 VARCHAR(100),
+    센터명 VARCHAR(100),
+    ladder차량명 VARCHAR(100),
+    출동요청시각 VARCHAR(20),
+    화재진압요청시각 VARCHAR(20),
+    현장시도명 VARCHAR(50),
+    현장시군구명 VARCHAR(50),
+    도시농촌구분명 VARCHAR(50),
+    피해지역경도 NUMERIC,
+    피해지역위도 NUMERIC,
+    현장거리 NUMERIC,
+    센터현장거리 NUMERIC,
+    ladder차량현장거리 NUMERIC,
+    점화열원대분류명 VARCHAR(100),
+    점화열원소분류명 VARCHAR(100),
+    점화물대분류명 VARCHAR(100),
+    점화물소분류명 VARCHAR(100),
+    최초점화물대분류명 VARCHAR(100),
+    최초점화물소분류명 VARCHAR(100),
+    점화인자대분류명 VARCHAR(100),
+    점화인자소분류명 VARCHAR(100),
+    연소확대물대분류명 VARCHAR(100),
+    연소확대물소분류명 VARCHAR(100),
+    시설장소대분류명 VARCHAR(100),
+    시설장소중분류명 VARCHAR(100),
+    시설장소소분류명 VARCHAR(100),
     -- 차량 특화 필드
-    igtn_plc_nm VARCHAR(100),
-    vhcl_igtn_pstn_nm VARCHAR(100),
-    emrg_cntrl_yn CHAR(1),
+    점화장소명 VARCHAR(100),
+    차량점화위치명 VARCHAR(100),
+    응급제어여부 CHAR(1),
     -- 기상정보
-    hr_unit_artmp NUMERIC,
-    hr_unit_rn NUMERIC,
-    hr_unit_wspd NUMERIC,
-    hr_unit_wndrct INTEGER,
-    hr_unit_hum NUMERIC,
-    hr_unit_snwfl NUMERIC,
-    hr_unit_vsdst NUMERIC,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    시간당기온 NUMERIC,
+    시간당강수량 NUMERIC,
+    시간당풍속 NUMERIC,
+    시간당풍향 INTEGER,
+    시간당습도 NUMERIC,
+    시간당강설량 NUMERIC,
+    시간당가시거리 NUMERIC,
+    생성일시 TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 서울 차량화재 인덱스
-CREATE INDEX idx_seoul_vehicle_fire_year ON seoul_vehicle_fire_dispatch(year);
-CREATE INDEX idx_seoul_vehicle_fire_date ON seoul_vehicle_fire_dispatch(ocrn_ymd);
-CREATE INDEX idx_seoul_vehicle_fire_station ON seoul_vehicle_fire_dispatch(frstn_nm);
-CREATE INDEX idx_seoul_vehicle_fire_position ON seoul_vehicle_fire_dispatch(vhcl_igtn_pstn_nm);
+-- 인덱스 생성
+CREATE INDEX idx_seoul_vehicle_fire_연도 ON seoul_vehicle_fire_dispatch(연도);
+CREATE INDEX idx_seoul_vehicle_fire_발생일자 ON seoul_vehicle_fire_dispatch(발생일자);
+CREATE INDEX idx_seoul_vehicle_fire_소방서명 ON seoul_vehicle_fire_dispatch(소방서명);
+CREATE INDEX idx_seoul_vehicle_fire_차량위치 ON seoul_vehicle_fire_dispatch(차량점화위치명);
 
 -- ================================
 -- 5. 서울 화재사고 구조출동 현황
 -- ================================
 CREATE TABLE seoul_rescue_dispatch (
-    id SERIAL PRIMARY KEY,
-    year INTEGER NOT NULL,
-    clmty_rscu_rptp_no VARCHAR(50) NOT NULL,
-    acdnt_cs_nm VARCHAR(100),
-    prcs_rslt_se_nm VARCHAR(100),
-    dclr_ymd VARCHAR(20),
-    dclr_tm VARCHAR(20),
-    dclr_yr INTEGER,
-    seasn_nm VARCHAR(20),
-    qtr_no INTEGER,
-    dclr_mm INTEGER,
-    dclr_day INTEGER,
-    dclr_hr INTEGER,
-    dclr_mn INTEGER,
-    dclr_dow VARCHAR(20),
-    dspt_ymd VARCHAR(20),
-    dspt_tm VARCHAR(20),
-    dspt_yr INTEGER,
-    dspt_mm INTEGER,
-    dspt_day INTEGER,
-    dspt_hr INTEGER,
-    dspt_mn INTEGER,
-    grnds_arvl_ymd VARCHAR(20),
-    grnds_arvl_tm VARCHAR(20),
-    grnds_arvl_yr INTEGER,
-    grnds_arvl_mm INTEGER,
-    grnds_arvl_day INTEGER,
-    grnds_arvl_hr INTEGER,
-    grnds_arvl_mn INTEGER,
-    rscu_cmptn_ymd VARCHAR(20),
-    rscu_cmptn_tm VARCHAR(20),
-    rscu_cmptn_yr INTEGER,
-    rscu_cmptn_mm INTEGER,
-    rscu_cmptn_day INTEGER,
-    rscu_cmptn_hr INTEGER,
-    rscu_cmptn_mn INTEGER,
-    cbk_ymd VARCHAR(20),
-    cbk_tm VARCHAR(20),
-    cbk_yr INTEGER,
-    cbk_mm INTEGER,
-    cbk_day INTEGER,
-    cbk_hr INTEGER,
-    cbk_mn INTEGER,
-    grnds_ctpv_nm VARCHAR(50),
-    grnds_sgg_nm VARCHAR(50),
-    cty_frmvl_se_nm VARCHAR(50),
-    damg_rgn_lot NUMERIC,
-    damg_rgn_lat NUMERIC,
-    grnds_dstnc NUMERIC,
-    acdnt_ocrn_plc_nm VARCHAR(200),
-    etc_ocrn_type_dtl_nm VARCHAR(200),
-    acdnt_cs_assrt_nm VARCHAR(200),
-    frstn_nm VARCHAR(100),
-    cntr_nm VARCHAR(100),
-    lfdau_nm VARCHAR(100),
-    hr_unit_artmp NUMERIC,
-    hr_unit_rn NUMERIC,
-    hr_unit_wspd NUMERIC,
-    hr_unit_wndrct INTEGER,
-    hr_unit_hum NUMERIC,
-    hr_unit_snwfl NUMERIC,
-    hr_unit_vsdst NUMERIC,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    ID SERIAL PRIMARY KEY,
+    연도 INTEGER NOT NULL,
+    재난구조신고번호 VARCHAR(50) NOT NULL,
+    사고원인명 VARCHAR(100),
+    처리결과구분명 VARCHAR(100),
+    신고일자 VARCHAR(20),
+    신고시각 VARCHAR(20),
+    신고연도 INTEGER,
+    계절명 VARCHAR(20),
+    분기 INTEGER,
+    신고월 INTEGER,
+    신고일 INTEGER,
+    신고시 INTEGER,
+    신고분 INTEGER,
+    신고요일 VARCHAR(20),
+    출동일자 VARCHAR(20),
+    출동시각 VARCHAR(20),
+    출동연도 INTEGER,
+    출동월 INTEGER,
+    출동일 INTEGER,
+    출동시 INTEGER,
+    출동분 INTEGER,
+    현장도착일자 VARCHAR(20),
+    현장도착시각 VARCHAR(20),
+    현장도착연도 INTEGER,
+    현장도착월 INTEGER,
+    현장도착일 INTEGER,
+    현장도착시 INTEGER,
+    현장도착분 INTEGER,
+    구조완료일자 VARCHAR(20),
+    구조완료시각 VARCHAR(20),
+    구조완료연도 INTEGER,
+    구조완료월 INTEGER,
+    구조완료일 INTEGER,
+    구조완료시 INTEGER,
+    구조완료분 INTEGER,
+    철수일자 VARCHAR(20),
+    철수시각 VARCHAR(20),
+    철수연도 INTEGER,
+    철수월 INTEGER,
+    철수일 INTEGER,
+    철수시 INTEGER,
+    철수분 INTEGER,
+    현장시도명 VARCHAR(50),
+    현장시군구명 VARCHAR(50),
+    도시농촌구분명 VARCHAR(50),
+    피해지역경도 NUMERIC,
+    피해지역위도 NUMERIC,
+    현장거리 NUMERIC,
+    사고발생장소명 VARCHAR(200),
+    기타발생유형상세명 VARCHAR(200),
+    사고원인주장명 VARCHAR(200),
+    소방서명 VARCHAR(100),
+    센터명 VARCHAR(100),
+    ladder차량명 VARCHAR(100),
+    시간당기온 NUMERIC,
+    시간당강수량 NUMERIC,
+    시간당풍속 NUMERIC,
+    시간당풍향 INTEGER,
+    시간당습도 NUMERIC,
+    시간당강설량 NUMERIC,
+    시간당가시거리 NUMERIC,
+    생성일시 TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 서울 구조출동 인덱스
-CREATE INDEX idx_seoul_rescue_year ON seoul_rescue_dispatch(year);
-CREATE INDEX idx_seoul_rescue_date ON seoul_rescue_dispatch(dclr_ymd);
-CREATE INDEX idx_seoul_rescue_station ON seoul_rescue_dispatch(frstn_nm);
-CREATE INDEX idx_seoul_rescue_result ON seoul_rescue_dispatch(prcs_rslt_se_nm);
+-- 인덱스 생성
+CREATE INDEX idx_seoul_rescue_연도 ON seoul_rescue_dispatch(연도);
+CREATE INDEX idx_seoul_rescue_신고일자 ON seoul_rescue_dispatch(신고일자);
+CREATE INDEX idx_seoul_rescue_소방서명 ON seoul_rescue_dispatch(소방서명);
+CREATE INDEX idx_seoul_rescue_처리결과 ON seoul_rescue_dispatch(처리결과구분명);
 
 -- ================================
 -- 6. 전국 화재현황
 -- ================================
 CREATE TABLE national_fire_status (
-    id SERIAL PRIMARY KEY,
-    year INTEGER NOT NULL,
-    wrinv_no VARCHAR(50) NOT NULL,
-    fire_type_nm VARCHAR(100),
-    bldg_srtfrm_nm VARCHAR(100),
-    bldg_strctr_nm VARCHAR(100),
-    bldg_srtrf_nm VARCHAR(100),
-    bldg_rscu_dngct NUMERIC,
-    grnd_nofl INTEGER,
-    udgd_nofl INTEGER,
-    bldg_gfa NUMERIC,
-    bttm_area NUMERIC,
-    bldg_stts_nm VARCHAR(50),
-    spfptg_nm VARCHAR(100),
-    smtpr_lclsf_nm VARCHAR(100),
-    smtpr_sclsf_nm VARCHAR(100),
-    dth_cnt INTEGER DEFAULT 0,
-    injpsn_cnt INTEGER DEFAULT 0,
-    hnl_dam_cnt INTEGER DEFAULT 0,
-    prpt_dam_amt BIGINT DEFAULT 0,
-    dow_nm VARCHAR(20),
-    frstn_nm VARCHAR(100),
-    cntr_nm VARCHAR(100),
-    rcpt_dt VARCHAR(14),
-    dspt_dt VARCHAR(14),
-    grnds_arvl_dt VARCHAR(14),
-    bgnn_potfr_dt VARCHAR(14),
-    prfect_potfr_dt VARCHAR(14),
-    cbk_dt VARCHAR(14),
-    dspt_req_hr VARCHAR(6),
-    fire_supesn_hr VARCHAR(6),
-    ctpv_nm VARCHAR(50),
-    sgg_nm VARCHAR(50),
-    frstn_grnds_dstnc NUMERIC,
-    cntr_grnds_dstnc NUMERIC,
-    lfdau_grnds_dstnc NUMERIC,
-    igtn_htsrc_nm VARCHAR(100),
-    igtn_htsrc_sclsf_nm VARCHAR(100),
-    igtn_dmnt_lclsf_nm VARCHAR(100),
-    igtn_dmnt_sclsf_nm VARCHAR(100),
-    frst_igobj_lclsf_nm VARCHAR(100),
-    frst_igobj_sclsf_nm VARCHAR(100),
-    igtn_istr_lclsf_nm VARCHAR(100),
-    igtn_istr_sclsf_nm VARCHAR(100),
-    cmbs_expobj_lclsf_nm VARCHAR(100),
-    cmbs_expobj_sclsf_nm VARCHAR(100),
-    fclt_plc_lclsf_nm VARCHAR(100),
-    fclt_plc_mclsf_nm VARCHAR(100),
-    fclt_plc_sclsf_nm VARCHAR(100),
-    igtn_flr_nm VARCHAR(50),
-    so_area NUMERIC,
-    fire_insrnc_oblg_trgt_yn CHAR(1),
-    arson_mng_trgt_yn CHAR(1),
-    mub_yn CHAR(1),
-    vhcl_plc_nm VARCHAR(100),
-    vhcl_igtn_pstn_nm VARCHAR(100),
-    fnd_fire_se_nm VARCHAR(100),
-    fnd_igtn_pstn_nm VARCHAR(100),
-    hr_unit_artmp NUMERIC,
-    hr_unit_wspd_info VARCHAR(50),
-    wndrct_brng VARCHAR(50),
-    hr_unit_hum NUMERIC,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    ID SERIAL PRIMARY KEY,
+    연도 INTEGER NOT NULL,
+    화재조사번호 VARCHAR(50) NOT NULL,
+    화재유형명 VARCHAR(100),
+    건물주구조형태명 VARCHAR(100),
+    건물구조명 VARCHAR(100),
+    건물지붕구조명 VARCHAR(100),
+    건물위험등급 NUMERIC,
+    지상층수 INTEGER,
+    지하층수 INTEGER,
+    건물연면적 NUMERIC,
+    바닥면적 NUMERIC,
+    건물상태명 VARCHAR(50),
+    소방시설명 VARCHAR(100),
+    연기감지기대분류명 VARCHAR(100),
+    연기감지기소분류명 VARCHAR(100),
+    사망자수 INTEGER DEFAULT 0,
+    부상자수 INTEGER DEFAULT 0,
+    인명피해수 INTEGER DEFAULT 0,
+    재산피해액 BIGINT DEFAULT 0,
+    요일명 VARCHAR(20),
+    소방서명 VARCHAR(100),
+    센터명 VARCHAR(100),
+    접수일시 VARCHAR(14),
+    출동일시 VARCHAR(14),
+    현장도착일시 VARCHAR(14),
+    진화개시일시 VARCHAR(14),
+    완전진화일시 VARCHAR(14),
+    철수일시 VARCHAR(14),
+    출동요청시각 VARCHAR(6),
+    화재진압시각 VARCHAR(6),
+    시도명 VARCHAR(50),
+    시군구명 VARCHAR(50),
+    소방서현장거리 NUMERIC,
+    센터현장거리 NUMERIC,
+    ladder차량현장거리 NUMERIC,
+    점화열원명 VARCHAR(100),
+    점화열원소분류명 VARCHAR(100),
+    점화물대분류명 VARCHAR(100),
+    점화물소분류명 VARCHAR(100),
+    최초점화물대분류명 VARCHAR(100),
+    최초점화물소분류명 VARCHAR(100),
+    점화인자대분류명 VARCHAR(100),
+    점화인자소분류명 VARCHAR(100),
+    연소확대물대분류명 VARCHAR(100),
+    연소확대물소분류명 VARCHAR(100),
+    시설장소대분류명 VARCHAR(100),
+    시설장소중분류명 VARCHAR(100),
+    시설장소소분류명 VARCHAR(100),
+    점화층명 VARCHAR(50),
+    소실면적 NUMERIC,
+    화재보험의무가입대상여부 CHAR(1),
+    방화관리대상여부 CHAR(1),
+    다중이용업소여부 CHAR(1),
+    차량장소명 VARCHAR(100),
+    차량점화위치명 VARCHAR(100),
+    화재발견구분명 VARCHAR(100),
+    화재발견점화위치명 VARCHAR(100),
+    시간당기온 NUMERIC,
+    시간당풍속정보 VARCHAR(50),
+    풍향방위 VARCHAR(50),
+    시간당습도 NUMERIC,
+    생성일시 TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 전국 화재현황 인덱스
-CREATE INDEX idx_national_fire_year ON national_fire_status(year);
-CREATE INDEX idx_national_fire_region ON national_fire_status(ctpv_nm, sgg_nm);
-CREATE INDEX idx_national_fire_casualties ON national_fire_status(dth_cnt, injpsn_cnt);
-CREATE INDEX idx_national_fire_damage ON national_fire_status(prpt_dam_amt);
+-- 인덱스 생성
+CREATE INDEX idx_national_fire_연도 ON national_fire_status(연도);
+CREATE INDEX idx_national_fire_지역 ON national_fire_status(시도명, 시군구명);
+CREATE INDEX idx_national_fire_피해 ON national_fire_status(사망자수, 부상자수);
+CREATE INDEX idx_national_fire_재산피해액 ON national_fire_status(재산피해액);
 
 -- ================================
 -- 7. 메타데이터 초기 데이터 삽입
@@ -413,43 +425,43 @@ INSERT INTO dataset_schemas (dataset_type, table_name, description, data_categor
 '["건축물화재", "건물화재", "아파트화재", "화재출동", "서울화재", "상가화재", "주택화재"]'::jsonb,
 '{
   "fields": {
-    "fire_type_nm": "화재유형 (건축/구조물, 기타 등)",
-    "bldg_strctr_nm": "건물구조 (철근콘크리트조, 목조, 철골조 등)",
-    "dth_cnt": "사망자수",
-    "injpsn_cnt": "부상자수", 
-    "prpt_dam_amt": "재산피해액 (천원 단위)",
-    "ocrn_ymd": "발생일자 (YYYYMMDD)",
-    "frstn_nm": "소방서명",
-    "igtn_htsrc_lclsf_nm": "점화열원 대분류 (전기적요인, 담뱃불 등)",
-    "fclt_plc_lclsf_nm": "시설장소 대분류 (주거, 상업, 산업시설 등)"
+    "화재유형명": "화재유형 (건축/구조물, 기타 등)",
+    "건물구조명": "건물구조 (철근콘크리트조, 목조, 철골조 등)",
+    "사망자수": "사망자수",
+    "부상자수": "부상자수", 
+    "재산피해액": "재산피해액 (천원 단위)",
+    "발생일자": "발생일자 (YYYYMMDD)",
+    "소방서명": "소방서명",
+    "점화열원대분류명": "점화열원 대분류 (전기적요인, 담뱃불 등)",
+    "시설장소대분류명": "시설장소 대분류 (주거, 상업, 산업시설 등)"
   },
-  "common_patterns": ["WHERE year = 2024", "WHERE dth_cnt > 0", "WHERE prpt_dam_amt > 100000"]
+  "common_patterns": ["WHERE 연도 = 2024", "WHERE 사망자수 > 0", "WHERE 재산피해액 > 100000"]
 }'::jsonb,
 '["2024년 건축물 화재 중 사망자가 발생한 사건", "재산피해가 1억원 이상인 화재", "전기적 요인으로 발생한 화재"]'::jsonb,
-'["SELECT fire_type_nm, dth_cnt, injpsn_cnt, prpt_dam_amt FROM seoul_fire_dispatch WHERE year = 2024 AND dth_cnt > 0", "SELECT frstn_nm, COUNT(*) FROM seoul_fire_dispatch WHERE year = 2024 GROUP BY frstn_nm ORDER BY COUNT(*) DESC"]'::jsonb),
+'["SELECT 화재유형명, 사망자수, 부상자수, 재산피해액 FROM seoul_fire_dispatch WHERE 연도 = 2024 AND 사망자수 > 0", "SELECT 소방서명, COUNT(*) FROM seoul_fire_dispatch WHERE 연도 = 2024 GROUP BY 소방서명 ORDER BY COUNT(*) DESC"]'::jsonb),
 
--- 서울 임야 화재출동 현황  
+-- 서울 임야 화재출동 현황
 ('seoul_forest_fire_dispatch', 'seoul_forest_fire_dispatch',
 '서울특별시 임야 화재출동 현황 - 산, 들판, 논밭에서 발생한 산불 및 들불 데이터, 기상정보 포함',
 'fire_dispatch', 
 '["임야화재", "산불", "들불", "산림화재", "들판화재", "기상정보"]'::jsonb,
 '{
   "fields": {
-    "fire_type_nm": "화재유형 (임야)",
-    "dth_cnt": "사망자수",
-    "injpsn_cnt": "부상자수",
-    "prpt_dam_amt": "재산피해액 (천원 단위)", 
-    "ocrn_ymd": "발생일자 (YYYYMMDD)",
-    "frstn_nm": "소방서명",
-    "hr_unit_artmp": "시간당 기온",
-    "hr_unit_wspd": "시간당 풍속",
-    "hr_unit_hum": "시간당 습도",
-    "igtn_htsrc_lclsf_nm": "점화열원 (담뱃불, 라이터불 등)"
+    "화재유형명": "화재유형 (임야)",
+    "사망자수": "사망자수",
+    "부상자수": "부상자수",
+    "재산피해액": "재산피해액 (천원 단위)", 
+    "발생일자": "발생일자 (YYYYMMDD)",
+    "소방서명": "소방서명",
+    "시간당기온": "시간당 기온",
+    "시간당풍속": "시간당 풍속",
+    "시간당습도": "시간당 습도",
+    "점화열원대분류명": "점화열원 (담뱃불, 라이터불 등)"
   },
   "weather_analysis": true
 }'::jsonb,
 '["봄철 임야화재 발생 현황", "강풍 시 발생한 산불", "담뱃불로 인한 들불"]'::jsonb,
-'["SELECT * FROM seoul_forest_fire_dispatch WHERE ocrn_mm IN (3,4,5) AND year = 2024", "SELECT * FROM seoul_forest_fire_dispatch WHERE hr_unit_wspd > 5"]'::jsonb),
+'["SELECT * FROM seoul_forest_fire_dispatch WHERE 발생월 IN (3,4,5) AND 연도 = 2024", "SELECT * FROM seoul_forest_fire_dispatch WHERE 시간당풍속 > 5"]'::jsonb),
 
 -- 서울 차량 화재출동 현황
 ('seoul_vehicle_fire_dispatch', 'seoul_vehicle_fire_dispatch',
@@ -458,18 +470,18 @@ INSERT INTO dataset_schemas (dataset_type, table_name, description, data_categor
 '["차량화재", "자동차화재", "차량출동", "차량점화위치"]'::jsonb,
 '{
   "fields": {
-    "fire_type_nm": "화재유형 (자동차/철도차량)",
-    "dth_cnt": "사망자수",
-    "injpsn_cnt": "부상자수",
-    "prpt_dam_amt": "재산피해액 (천원 단위)",
-    "ocrn_ymd": "발생일자 (YYYYMMDD)", 
-    "frstn_nm": "소방서명",
-    "vhcl_igtn_pstn_nm": "차량점화위치 (엔진룸, 차체 등)",
-    "igtn_htsrc_lclsf_nm": "점화열원 (마찰/전도/복사, 작동기기 등)"
+    "화재유형명": "화재유형 (자동차/철도차량)",
+    "사망자수": "사망자수",
+    "부상자수": "부상자수",
+    "재산피해액": "재산피해액 (천원 단위)",
+    "발생일자": "발생일자 (YYYYMMDD)", 
+    "소방서명": "소방서명",
+    "차량점화위치명": "차량점화위치 (엔진룸, 차체 등)",
+    "점화열원대분류명": "점화열원 (마찰/전도/복사, 작동기기 등)"
   }
 }'::jsonb,
 '["엔진룸에서 발생한 차량화재", "고속도로 차량화재", "전기적 요인 차량화재"]'::jsonb,
-'["SELECT * FROM seoul_vehicle_fire_dispatch WHERE vhcl_igtn_pstn_nm LIKE \"%엔진%\"", "SELECT COUNT(*) FROM seoul_vehicle_fire_dispatch WHERE year = 2024 GROUP BY ocrn_mm"]'::jsonb),
+'["SELECT * FROM seoul_vehicle_fire_dispatch WHERE 차량점화위치명 LIKE \"%엔진%\"", "SELECT COUNT(*) FROM seoul_vehicle_fire_dispatch WHERE 연도 = 2024 GROUP BY 발생월"]'::jsonb),
 
 -- 서울 화재사고 구조출동 현황
 ('seoul_rescue_dispatch', 'seoul_rescue_dispatch', 
@@ -478,19 +490,19 @@ INSERT INTO dataset_schemas (dataset_type, table_name, description, data_categor
 '["구조출동", "인명구조", "화재구조", "구조활동", "안전조치"]'::jsonb,
 '{
   "fields": {
-    "acdnt_cs_nm": "사고원인명 (화재)",
-    "prcs_rslt_se_nm": "처리결과 구분 (인명구조, 안전조치, 오인신고 등)",
-    "dclr_ymd": "신고일자 (YYYYMMDD)",
-    "rscu_cmptn_ymd": "구조완료일자 (YYYYMMDD)",
-    "frstn_nm": "소방서명",
-    "acdnt_ocrn_plc_nm": "사고발생장소명",
-    "dspt_tm": "출동시간",
-    "grnds_arvl_tm": "현장도착시간"
+    "사고원인명": "사고원인명 (화재)",
+    "처리결과구분명": "처리결과 구분 (인명구조, 안전조치, 오인신고 등)",
+    "신고일자": "신고일자 (YYYYMMDD)",
+    "구조완료일자": "구조완료일자 (YYYYMMDD)",
+    "소방서명": "소방서명",
+    "사고발생장소명": "사고발생장소명",
+    "출동시각": "출동시간",
+    "현장도착시각": "현장도착시간"
   },
   "response_time_analysis": true
 }'::jsonb,  
 '["인명구조가 성공한 화재사고", "출동시간이 빠른 구조활동", "오인신고 현황"]'::jsonb,
-'["SELECT * FROM seoul_rescue_dispatch WHERE prcs_rslt_se_nm = \"인명구조\"", "SELECT frstn_nm, AVG(grnds_dstnc) FROM seoul_rescue_dispatch GROUP BY frstn_nm"]'::jsonb),
+'["SELECT * FROM seoul_rescue_dispatch WHERE 처리결과구분명 = \"인명구조\"", "SELECT 소방서명, AVG(현장거리) FROM seoul_rescue_dispatch GROUP BY 소방서명"]'::jsonb),
 
 -- 전국 화재현황
 ('national_fire_status', 'national_fire_status',
@@ -499,21 +511,21 @@ INSERT INTO dataset_schemas (dataset_type, table_name, description, data_categor
 '["전국화재", "시도별화재", "화재통계", "화재현황", "전국통계"]'::jsonb,
 '{
   "fields": {
-    "ctpv_nm": "시도명 (서울특별시, 부산광역시 등)",
-    "sgg_nm": "시군구명", 
-    "fire_type_nm": "화재유형",
-    "dth_cnt": "사망자수",
-    "injpsn_cnt": "부상자수",
-    "prpt_dam_amt": "재산피해액 (천원 단위)",
-    "rcpt_dt": "접수일시",
-    "dspt_dt": "출동일시", 
-    "grnds_arvl_dt": "현장도착일시",
-    "frstn_nm": "소방서명"
+    "시도명": "시도명 (서울특별시, 부산광역시 등)",
+    "시군구명": "시군구명", 
+    "화재유형명": "화재유형",
+    "사망자수": "사망자수",
+    "부상자수": "부상자수",
+    "재산피해액": "재산피해액 (천원 단위)",
+    "접수일시": "접수일시",
+    "출동일시": "출동일시", 
+    "현장도착일시": "현장도착일시",
+    "소방서명": "소방서명"
   },
   "regional_analysis": true
 }'::jsonb,
 '["서울시 화재 현황", "경기도 화재 통계", "사망자 발생 화재 지역별 분석"]'::jsonb,
-'["SELECT ctpv_nm, COUNT(*) FROM national_fire_status WHERE year = 2023 GROUP BY ctpv_nm", "SELECT * FROM national_fire_status WHERE dth_cnt > 0 AND ctpv_nm = \"서울특별시\""]'::jsonb);
+'["SELECT 시도명, COUNT(*) FROM national_fire_status WHERE 연도 = 2023 GROUP BY 시도명", "SELECT * FROM national_fire_status WHERE 사망자수 > 0 AND 시도명 = \"서울특별시\""]'::jsonb);
 
 -- ================================
 -- 8. 업데이트 트리거 생성
@@ -531,68 +543,63 @@ CREATE TRIGGER update_dataset_schemas_updated_at
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ================================
--- 9. 뷰 생성 (종합 조회용)
+-- 9. 종합 뷰 생성
 -- ================================
+DROP VIEW IF EXISTS v_all_fire_dispatch CASCADE;
 CREATE VIEW v_all_fire_dispatch AS
 SELECT 
-    'building' as fire_category,
-    year, 
-    fire_type_nm,
-    dth_cnt,
-    injpsn_cnt, 
-    prpt_dam_amt,
-    ocrn_ymd,
-    frstn_nm,
-    grnds_sgg_nm as location,
-    igtn_htsrc_lclsf_nm as ignition_source,
-    NULL as vehicle_position,
-    'seoul_fire_dispatch' as source_table
+    'building' as 화재분류,
+    연도, 
+    화재유형명,
+    사망자수,
+    부상자수, 
+    재산피해액,
+    발생일자,
+    소방서명,
+    현장시군구명 as 위치,
+    점화열원대분류명 as 점화원인,
+    NULL as 차량위치,
+    'seoul_fire_dispatch' as 원본테이블
 FROM seoul_fire_dispatch
 
 UNION ALL
 
 SELECT 
-    'forest' as fire_category,
-    year,
-    fire_type_nm, 
-    dth_cnt,
-    injpsn_cnt,
-    prpt_dam_amt,
-    ocrn_ymd,
-    frstn_nm,
-    grnds_sgg_nm as location,
-    igtn_htsrc_lclsf_nm as ignition_source, 
-    NULL as vehicle_position,
-    'seoul_forest_fire_dispatch' as source_table
+    'forest' as 화재분류,
+    연도,
+    화재유형명, 
+    사망자수,
+    부상자수,
+    재산피해액,
+    발생일자,
+    소방서명,
+    현장시군구명 as 위치,
+    점화열원대분류명 as 점화원인, 
+    NULL as 차량위치,
+    'seoul_forest_fire_dispatch' as 원본테이블
 FROM seoul_forest_fire_dispatch
 
 UNION ALL
 
 SELECT 
-    'vehicle' as fire_category,
-    year,
-    fire_type_nm,
-    dth_cnt, 
-    injpsn_cnt,
-    prpt_dam_amt,
-    ocrn_ymd,
-    frstn_nm,
-    grnds_sgg_nm as location,
-    igtn_htsrc_lclsf_nm as ignition_source,
-    vhcl_igtn_pstn_nm as vehicle_position,
-    'seoul_vehicle_fire_dispatch' as source_table  
+    'vehicle' as 화재분류,
+    연도,
+    화재유형명,
+    사망자수, 
+    부상자수,
+    재산피해액,
+    발생일자,
+    소방서명,
+    현장시군구명 as 위치,
+    점화열원대분류명 as 점화원인,
+    차량점화위치명 as 차량위치,
+    'seoul_vehicle_fire_dispatch' as 원본테이블  
 FROM seoul_vehicle_fire_dispatch;
-
--- ================================
--- 10. 권한 설정 (필요시)
--- ================================
--- GRANT SELECT ON ALL TABLES IN SCHEMA public TO fire_safety_user;
--- GRANT INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO fire_safety_admin;
 
 -- ================================
 -- 마이그레이션 완료 확인
 -- ================================
 SELECT 
-    'Migration completed successfully!' as status,
-    COUNT(*) as total_schemas
+    '한글 전용 테이블 생성 완료!' as 상태,
+    COUNT(*) as 총_스키마수
 FROM dataset_schemas;

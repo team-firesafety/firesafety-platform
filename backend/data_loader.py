@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 🔥 Fire Safety Data Loader
-하이브리드 테이블 구조용 데이터 로더
+한글 컬럼명 전용 데이터 로더
 """
 
 import pandas as pd
@@ -13,6 +13,7 @@ import logging
 from typing import Dict, List, Any, Optional
 import re
 from datetime import datetime
+from app.services.column_mapping_service import ColumnMappingService
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -29,7 +30,7 @@ class FireSafetyDataLoader:
         self.db_config = db_config
         self.conn = None
         
-        # 데이터셋 매핑 (영어 폴더명)
+        # 데이터셋 매핑 (한글 테이블만)
         self.dataset_mapping = {
             "seoul_fire_dispatch": {
                 "table": "seoul_fire_dispatch",
@@ -91,13 +92,13 @@ class FireSafetyDataLoader:
         return None
     
     def prepare_data_for_table(self, df: pd.DataFrame, table: str, year: int) -> List[Dict[str, Any]]:
-        """테이블별 데이터 전처리"""
-        records = []
+        """테이블별 데이터 전처리 (한글 컬럼명으로 변환)"""
+        korean_records = []
         
         for _, row in df.iterrows():
-            record = {"year": year}
+            korean_record = {"연도": year}
             
-            # 각 컬럼을 테이블 스키마에 맞게 매핑
+            # 각 컬럼을 한글명으로 변환하여 처리
             for col in df.columns:
                 value = row[col]
                 
@@ -150,13 +151,15 @@ class FireSafetyDataLoader:
                     if value == 'nan' or value == '':
                         value = None
                 
-                record[col] = value
+                # 한글 컬럼명으로 변환
+                korean_col = ColumnMappingService.get_korean_column_name(col)
+                korean_record[korean_col] = value
             
-            records.append(record)
+            korean_records.append(korean_record)
         
-        return records
+        return korean_records
     
-    def insert_data_batch(self, table: str, records: List[Dict[str, Any]], batch_size: int = 100):
+    def insert_data_batch(self, table: str, records: List[Dict[str, Any]], batch_size: int = 100) -> int:
         """배치 단위로 데이터 삽입"""
         if not records:
             logger.warning(f"No records to insert for table {table}")
@@ -203,7 +206,7 @@ class FireSafetyDataLoader:
         return total_inserted
     
     def load_csv_file(self, file_path: Path, table_info: Dict[str, str]) -> int:
-        """CSV 파일 로드 및 삽입"""
+        """CSV 파일 로드 및 삽입 (한글 컬럼명으로 변환)"""
         logger.info(f"Loading file: {file_path}")
         
         # 연도 추출
@@ -226,14 +229,18 @@ class FireSafetyDataLoader:
         # 컬럼명 정리
         df = self.clean_column_names(df)
         
-        # 데이터 전처리
-        records = self.prepare_data_for_table(df, table_info["table"], year)
+        # 데이터 전처리 (한글 컬럼명으로 변환)
+        korean_records = self.prepare_data_for_table(df, table_info["table"], year)
         
         # 데이터베이스 삽입
-        return self.insert_data_batch(table_info["table"], records)
+        inserted_count = self.insert_data_batch(table_info["table"], korean_records)
+        
+        logger.info(f"Inserted to {table_info['table']}: {inserted_count} records")
+        
+        return inserted_count
     
     def load_dataset_folder(self, folder_path: Path, table_info: Dict[str, str] = None) -> Dict[str, int]:
-        """데이터셋 폴더 로드"""
+        """데이터셋 폴더 로드 (한글 컬럼명 전용)"""
         folder_name = folder_path.name
         
         if not table_info:
@@ -265,7 +272,7 @@ class FireSafetyDataLoader:
         return results
     
     def load_all_data(self, data_root_path: str) -> Dict[str, Dict[str, int]]:
-        """모든 데이터 로드"""
+        """모든 데이터 로드 (한글 컬럼명 전용)"""
         data_path = Path(data_root_path)
         
         if not data_path.exists():
@@ -299,7 +306,7 @@ class FireSafetyDataLoader:
                     
                     # 폴더별 요약
                     total_records = sum(folder_results.values())
-                    logger.info(f"Folder '{folder_name}' completed: {total_records} total records")
+                    logger.info(f"Folder '{folder_name}' completed: {total_records} records")
                 elif folder.is_dir():
                     logger.warning(f"❌ Folder '{folder.name}' not in dataset mapping - skipping")
             

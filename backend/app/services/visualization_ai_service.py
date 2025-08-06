@@ -83,6 +83,12 @@ class VisualizationAIQueryService:
 
 사용자 질문: "{question}"
 
+**중요한 선택 규칙**:
+- "월별", "계절별" 분석 → seoul_fire_dispatch 우선 선택 (발생월, 계절명 컬럼 보유)
+- "서울", "화재" 키워드 → seoul_fire_dispatch 우선 선택
+- "전국" 키워드가 명시적으로 있을 때만 → national_fire_status 선택
+- national_fire_status는 발생월, 계절명 컬럼이 없으므로 시계열 분석에 부적합
+
 각 데이터셋의 설명, 필드명, 예시 쿼리를 분석하여 사용자가 원하는 정보가 어떤 데이터셋에 있을지 판단하세요.
 
 응답 형식:
@@ -147,8 +153,9 @@ class VisualizationAIQueryService:
 당신은 PostgreSQL 쿼리 전문가입니다.
 
 데이터베이스 구조:
-- 하이브리드 테이블 구조로 각 데이터셋별 전용 테이블 사용
+- 모든 테이블이 한글 컬럼명을 사용합니다
 - 주요 테이블들: seoul_fire_dispatch, seoul_rescue_dispatch, national_fire_status 등
+- 모든 컬럼명이 한글로 되어 있어 이해하기 쉽습니다
 
 사용 가능한 데이터 정보:
 {context}
@@ -157,16 +164,51 @@ class VisualizationAIQueryService:
 
 요구사항:
 1. PostgreSQL SELECT 쿼리만 생성하세요
-2. 적절한 테이블명을 사용하세요 (context에서 table_name 확인)
-3. 일반적인 PostgreSQL 컬럼 접근 방식 사용 (JSONB 연산자 불필요)
+2. 한글 컬럼명을 사용하세요
+3. 읿법적인 PostgreSQL 컬럼 접근 방식 사용
 4. 숫자 비교시 적절한 형변환 사용 (::integer, ::numeric)
 5. 날짜 비교시 적절한 형변환 사용 (::date, ::timestamp)
 6. LIMIT {settings.MAX_QUERY_RESULTS} 기본 적용
 7. 결과는 SQL 쿼리만 반환 (설명 불필요)
 
-예시:
-- SELECT * FROM seoul_fire_dispatch WHERE dth_cnt > 0 LIMIT 100
-- SELECT * FROM seoul_rescue_dispatch WHERE injpsn_cnt >= 1 LIMIT 100
+예시 (한글 컬럼명 사용):
+- SELECT * FROM seoul_fire_dispatch WHERE 사망자수 > 0 LIMIT 100
+- SELECT * FROM seoul_rescue_dispatch WHERE 부상자수 >= 1 LIMIT 100
+- SELECT 소방서명, COUNT(*) FROM seoul_fire_dispatch WHERE 연도 = 2024 GROUP BY 소방서명
+
+시계열 및 집계 분석 예시:
+- SELECT 발생월, COUNT(*) as 발생건수 FROM seoul_fire_dispatch WHERE 연도 = 2024 GROUP BY 발생월 ORDER BY 발생월
+- SELECT 계절명, COUNT(*) as 발생건수, SUM(사망자수) as 총사망자수 FROM seoul_fire_dispatch WHERE 연도 = 2024 GROUP BY 계절명
+- SELECT 연도, SUM(재산피해액) as 총재산피해액 FROM seoul_fire_dispatch WHERE 연도 >= 2022 GROUP BY 연도 ORDER BY 연도
+- SELECT 발생월, COUNT(*) as 발생건수, AVG(재산피해액) as 평균피해액 FROM seoul_fire_dispatch WHERE 연도 = 2024 GROUP BY 발생월 ORDER BY 발생월
+- SELECT 연도, COUNT(*) as 발생건수, SUM(사망자수) as 총사망자수, SUM(부상자수) as 총부상자수 FROM seoul_fire_dispatch WHERE 연도 BETWEEN 2022 AND 2024 GROUP BY 연도 ORDER BY 연도
+
+중요한 컬럼 사용법:
+- 월별 분석: '발생월' 컬럼 직접 사용 (발생일자 변환 금지)
+- 연도별 분석: '연도' 또는 '발생연도' 컬럼 직접 사용
+- 계절별 분석: '계절명' 컬럼 직접 사용
+- 날짜 변환 함수 사용 금지, 기존 한글 컬럼명만 사용
+
+테이블별 주요 컬럼 보유 현황:
+- seoul_fire_dispatch: 연도, 발생월, 계절명, 사망자수, 부상자수, 재산피해액, 소방서명 등
+- seoul_forest_fire_dispatch: 연도, 발생월, 계절명, 사망자수, 부상자수, 재산피해액 등 
+- seoul_vehicle_fire_dispatch: 연도, 발생월, 계절명, 사망자수, 부상자수, 재산피해액 등
+- seoul_rescue_dispatch: 연도, 신고월, 계절명 등
+- national_fire_status: 연도, 사망자수, 부상자수, 재산피해액 등 (계절명 없음)
+
+테이블 선택 우선순위:
+- 서울 화재 관련 질문: seoul_fire_dispatch 우선 사용
+- 전국 화재 질문이 명시된 경우만 national_fire_status 사용
+
+**절대 금지사항**:
+- 날짜/시간 변환 함수 사용 금지 (EXTRACT, TO_DATE, TO_CHAR 등)
+- CASE WHEN으로 계절 계산 금지
+- 접수일시, 발생일자 등을 timestamp로 변환 금지
+- 이미 존재하는 한글 컬럼을 직접 사용할 것
+
+**반드시 지켜야 할 규칙**:
+- 계절별 분석 시: 계절명 컬럼이 있는 테이블만 사용 (seoul_fire_dispatch, seoul_forest_fire_dispatch, seoul_vehicle_fire_dispatch)
+- national_fire_status 테이블에는 계절명 컬럼이 없으므로 계절별 분석에 사용 금지
 """
 
         if dataset_type:
@@ -182,7 +224,7 @@ class VisualizationAIQueryService:
                 messages=[
                     {
                         "role": "system", 
-                        "content": "당신은 PostgreSQL과 JSONB에 특화된 SQL 쿼리 전문가입니다. 사용자의 자연어 질문을 정확한 SQL 쿼리로 변환하세요."
+                        "content": "당신은 PostgreSQL 쿼리 전문가입니다. 한글 컬럼명을 사용하는 데이터베이스에서 작업하며, 이미 존재하는 한글 컬럼을 직접 사용해야 합니다. 날짜/시간 변환 함수나 복잡한 계산은 절대 사용하지 마세요."
                     },
                     {
                         "role": "user", 
