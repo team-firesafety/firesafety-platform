@@ -648,18 +648,20 @@ export default {
 }
 
 .modal-content {
-  width: 900px;
+  width: 1000px;
   height: 900px;
   min-width: 600px;
   min-height: 600px;
-  max-width: 90vw;
-  max-height: 90vh;
-  background: #ffffff;
-  border-radius: 12px;
+  max-width: 95vw;
+  max-height: 95vh;
+  background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
-  padding: 60px 70px;
+  padding: 50px 60px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 로딩 스타일 */
@@ -737,110 +739,220 @@ export default {
 
 /* 컬럼 선택 화면 */
 .column-selection {
-  text-align: center;
   display: flex;
   flex-direction: column;
   height: 100%;
+  justify-content: center;
+  align-items: center;
   position: relative;
 }
 
 .selection-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: #2744FF;
-  margin: 40px 0;
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 60px 0;
+  text-align: center;
+  position: relative;
+}
+
+.selection-title::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .axis-selection-container {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0 40px;
-  margin-bottom: 120px;
+  gap: 30px;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 60px;
 }
 
 .axis-section {
-  margin-bottom: 40px;
-  text-align: left;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
 }
 
-.axis-section:last-child {
-  margin-bottom: 0;
+.axis-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 16px 50px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .axis-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1F2937;
-  margin-bottom: 16px;
-  padding-left: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2744FF 0%, #4338CA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 24px;
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
+}
+
+.axis-title::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #2744FF, transparent);
+  border-radius: 2px;
 }
 
 .checkbox-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  justify-items: center;
 }
 
 .checkbox-item {
   display: flex;
   align-items: center;
-  padding: 8px 0;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 14px;
+  border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   user-select: none;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 160px;
 }
 
-.checkbox-item:hover .checkbox-label {
-  color: #2744FF;
+.checkbox-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(103, 126, 234, 0.15), transparent);
+  transition: left 0.6s ease;
+}
+
+.checkbox-item:hover::before {
+  left: 100%;
+}
+
+.checkbox-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(103, 126, 234, 0.4);
+  box-shadow: 0 12px 30px rgba(103, 126, 234, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.checkbox-item.selected {
+  background: linear-gradient(135deg, rgba(103, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  border-color: #667eea;
+  box-shadow: 
+    0 8px 25px rgba(103, 126, 234, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .checkbox-item.selected .checkbox-label {
-  color: #2744FF;
+  color: #667eea;
   font-weight: 600;
 }
 
 .checkbox-item input[type="checkbox"] {
   margin-right: 12px;
-  width: 18px;
-  height: 18px;
-  accent-color: #2744FF;
+  width: 20px;
+  height: 20px;
+  accent-color: #667eea;
+  border-radius: 6px;
 }
 
 .checkbox-label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: #374151;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .select-button {
-  background: #2744FF;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 16px 60px;
-  font-size: 16px;
+  border-radius: 18px;
+  padding: 18px 48px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(39, 68, 255, 0.3);
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 12px 35px rgba(103, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  position: relative;
+  align-self: center;
+}
+
+.select-button::before {
+  content: '';
   position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.select-button:hover::before {
+  left: 100%;
 }
 
 .select-button:hover:not(:disabled) {
-  background: #4338CA;
-  box-shadow: 0 6px 20px rgba(39, 68, 255, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 
+    0 15px 40px rgba(103, 126, 234, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.select-button:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 5px 15px rgba(103, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .select-button:disabled {
-  background: #D1D5DB;
+  background: linear-gradient(145deg, #E5E7EB 0%, #D1D5DB 100%);
   cursor: not-allowed;
-  box-shadow: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  color: #9CA3AF;
 }
 
 /* 최대 선택 알림 */
@@ -877,7 +989,7 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   padding-bottom: 5px;
 }
 
