@@ -18,7 +18,7 @@
         </div>
 
         <!-- 텍스트 -->
-        <p class="subtitle">필요한게 있으실까요?</p>
+        <h1 class="subtitle">무엇을 도와드릴까요 ?</h1>
 
         <!-- 공통 ChatInput 컴포넌트 사용 -->
         <div class="chat-input-wrapper">
@@ -158,14 +158,26 @@ export default {
 
 /* 그라데이션 텍스트 */
 .subtitle {
-  margin-bottom: 20px; /* 간격을 줄여서 채팅창을 더 위로 */
+  margin: 0 0 32px 0;
   font-size: 32px;
   font-weight: 500;
-  color: #0022FF !important;
+  color: #2744FF;
   text-align: center;
-  white-space: nowrap;
-  display: block;
-  visibility: visible;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+  position: relative;
+}
+
+.subtitle::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #2744FF, transparent);
+  border-radius: 1px;
 }
 
 /* MainPage 전용 ChatInput 스타일 */
