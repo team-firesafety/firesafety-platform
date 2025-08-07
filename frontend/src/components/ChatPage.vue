@@ -12,7 +12,7 @@
             :key="idx"
             :class="['message-wrapper', msg.from]"
         >
-          <div :class="['message', msg.from]">
+          <div :class="['message', msg.from, msg.type === 'image' ? 'user-image' : '']">
             <!-- ① 로딩 -->
             <template v-if="msg.loading">
               <Loading />
@@ -27,7 +27,19 @@
               </div>
             </template>
 
-            <!-- ③ Markdown / Plain -->
+            <!-- ③ 사용자 이미지 메시지 -->
+            <template v-else-if="msg.from === 'user' && msg.type === 'image'">
+              <div class="user-image-only">
+                <img :src="msg.image.url" alt="첨부된 이미지" />
+              </div>
+            </template>
+
+            <!-- ④ 사용자 텍스트 메시지 (기존 메시지 포함) -->
+            <template v-else-if="msg.from === 'user'">
+              <p class="plain-text">{{ msg.text }}</p>
+            </template>
+
+            <!-- ⑤ 봇 메시지 (Markdown / Plain) -->
             <template v-else>
               <div
                   v-if="msg.html"
@@ -56,13 +68,13 @@
 </template>
 
 <script>
-import Sidebar from '@/components/Sidebar.vue';
-import ChatInput from './ChatInput.vue';
-import ModalVis from './Modal1.vue';
-import ModalPdf from './Modal2.vue';
-import ModalMap from './Modal3.vue';
-import Loading from './Loading.vue';
-import MarkdownIt from 'markdown-it';
+import Sidebar     from '@/components/Sidebar.vue';
+import ChatInput   from './ChatInput.vue';
+import ModalVis    from './Modal1.vue';
+import ModalPdf    from './Modal2.vue';
+import ModalMap    from './Modal3.vue';
+import Loading     from './Loading.vue';
+import MarkdownIt  from 'markdown-it';
 
 const md = new MarkdownIt({
   breaks: true,
@@ -71,8 +83,8 @@ const md = new MarkdownIt({
   html: true
 });
 
-const STEP_MS = 50;           // 타자기 속도 더 빠르게
-const MAX_W = 900;            // 메시지/입력창 최대 폭 증가
+const STEP_MS = 50;   // 타자기 속도
+const MAX_W   = 900;  // 메시지/입력창 최대 폭
 
 export default {
   name: 'ChatPage',
@@ -83,11 +95,9 @@ export default {
   data() {
     return {
       messages: [],
-
       showVisModal: false, visResult: {},
       showPdfModal: false, pdfResult: {},
       showMapModal: false, mapResult: {},
-
       loadingMessageIndex: -1,
     };
   },
@@ -96,9 +106,28 @@ export default {
     /* ---------------------------------------------------------- */
     /* 메인 송신                                                   */
     /* ---------------------------------------------------------- */
-    async sendMessage(text) {
-      /* ─── 사용자 메시지 ─── */
-      this.messages.push({from: 'user', text});
+    async sendMessage(messageData) {
+      console.log('Starting to send message:', messageData);
+
+      /* ─── 사용자 메시지 (이미지와 텍스트 분리) ─── */
+      const text = typeof messageData === 'string' ? messageData : messageData.text;
+      const image = typeof messageData === 'object' && messageData.image ? messageData.image : null;
+
+      // 이미지가 있으면 먼저 이미지 메시지 추가
+      if (image) {
+        this.messages.push({
+          from: 'user',
+          type: 'image',
+          image: image
+        });
+      }
+
+      // 텍스트 메시지 추가 (기존 호환성 유지)
+      this.messages.push({
+        from: 'user',
+        text: text
+      });
+
       this.scrollToBottom();
 
       /* ─── 로딩 메시지 ─── */
@@ -108,13 +137,12 @@ export default {
 
       /* ─── 모달 초기화 ─── */
       this.showVisModal = this.showPdfModal = this.showMapModal = false;
-      this.visResult = this.pdfResult = this.mapResult = {};
 
       try {
         const res = await fetch('http://localhost:8000/chat', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({query: text}),
+          body: JSON.stringify({query: text}), // 서버에는 텍스트만 전송
         });
 
         const ctype = res.headers.get('content-type') || '';
@@ -133,19 +161,25 @@ export default {
         switch (Number(functionNo)) {
           case 1:   // 시각화
             this.messages.push({from: 'bot', text: '📊 데이터 시각화를 생성했습니다.'});
-            this.showVisModal = true;
-            this.$nextTick(() => (this.visResult = data));
+            this.visResult = data;
+            this.$nextTick(() => {
+              this.showVisModal = true;
+            });
             break;
 
           case 2:   // PDF
-            this.showPdfModal = true;
-            this.$nextTick(() => (this.pdfResult = data));
+            this.pdfResult = data;
+            this.$nextTick(() => {
+              this.showPdfModal = true;
+            });
             break;
 
           case 3:   // 지도
             this.messages.push({from: 'bot', text: '🗺️ 화재 예측 지도를 생성했습니다.'});
-            this.showMapModal = true;
-            this.$nextTick(() => (this.mapResult = data));
+            this.mapResult = data;
+            this.$nextTick(() => {
+              this.showMapModal = true;
+            });
             break;
 
           case 4:   // 마크다운 문자열
@@ -188,7 +222,7 @@ export default {
       const decoder = new TextDecoder();
       let idx = null;   // 메시지 버블 인덱스
       let raw = '';     // 누적 텍스트
-      let buffer = '';  // 청크 버퍼
+      let buffer = '';     // 청크 버퍼
 
       while (true) {
         const {value, done} = await reader.read();
@@ -197,18 +231,23 @@ export default {
 
         /* SSE 프로토콜은 \n\n 로 메시지를 구분 */
         let lines = buffer.split('\n\n');
-        buffer = lines.pop();       // 남은 찌꺼기
+        buffer = lines.pop();   // 남은 찌꺼기
 
         for (const line of lines) {
           if (!line.startsWith('data:')) continue;
-          const payload = line.replace(/^data:\s*/, '');
+
+          /* --- 공백 보존: 'data:' 뒤 첫 칸만 제거 ------------------ */
+          let payload = line.slice(5);         // 'data:' 제거
+          if (payload.startsWith(' ') && payload.length > 1) {
+            payload = payload.slice(1);        // 프로토콜용 스페이스 1칸만 제거
+          }
 
           if (payload === '[DONE]') {
             this.scrollToBottom();
             return;
           }
 
-          /* --- 핵심: 빈 data: 는 실제 개행으로 바꿔 줌 --- */
+          /* 빈 payload → 실제 개행 */
           raw += payload === '' ? '\n' : payload;
 
           /* 버블이 아직 없으면 생성 */
@@ -217,7 +256,7 @@ export default {
           }
           this.messages[idx].html = md.render(raw);
 
-          // 실시간으로 스크롤
+          // 실시간 스크롤
           this.$nextTick(() => this.scrollToBottom());
         }
       }
@@ -268,7 +307,11 @@ export default {
   /* 초기 쿼리 */
   created() {
     const init = this.$route.query.q;
-    if (init) this.sendMessage(init);
+    if (init) {
+      console.log('ChatPage created - received query:', init);
+      // 초기 쿼리는 문자열이므로 그대로 전달
+      this.sendMessage(init);
+    }
   },
 };
 </script>
@@ -287,7 +330,7 @@ export default {
 .messages {
   position: absolute;
   top: 144px;
-  bottom: 0;
+  bottom: 200px; /* 입력창 높이(160px) + bottom(40px) 고려 */
   left: 0;
   right: 0;
   overflow-y: auto;
@@ -295,28 +338,36 @@ export default {
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  padding-bottom: 280px; /* 입력창과 겹치지 않도록 충분한 여백 */
-  max-width: 900px; /* 전체 폭 증가 */
+  max-width: 900px; /* 전체 폭 */
   margin: 0 auto;
 }
 
-/* 메시지 래퍼 (정렬용) -------------------------------------------- */
+/* 메시지 래퍼 ---------------------------------------------------- */
 .message-wrapper {
   display: flex;
   width: 100%;
 }
 
 .message-wrapper.user {
-  justify-content: flex-end; /* 사용자 메시지는 오른쪽 */
+  justify-content: flex-end;
+}
+
+/* 이미지 메시지 컨테이너 */
+.message.user-image {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
 .message-wrapper.bot {
-  justify-content: flex-start; /* 봇 메시지는 왼쪽 */
+  justify-content: flex-start;
 }
 
 /* 메시지 버블 --------------------------------------------------- */
 .message {
-  max-width: 70%; /* 화면의 70%까지 차지 가능 */
+  max-width: 70%;
   min-width: 120px;
   padding: 16px 20px;
   border-radius: 18px;
@@ -327,45 +378,69 @@ export default {
 }
 
 .message.user {
-  background: #007AFF;
-  color: white;
-  border-bottom-right-radius: 6px; /* 말풍선 효과 */
+  background: #2744FF;
+  color: #fff;
+  border-bottom-right-radius: 6px;
 }
 
 .message.bot {
   background: #FFFFFF;
   color: #333333;
   border: 1px solid #E1E5E9;
-  border-bottom-left-radius: 6px; /* 말풍선 효과 */
+  border-bottom-left-radius: 6px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  line-height: 1.8;
 }
 
-/* 플레인 텍스트 스타일 ------------------------------------------ */
+/* 플레인 텍스트 ------------------------------------------------- */
 .plain-text {
   margin: 0;
   white-space: pre-wrap;
 }
 
-/* 마크다운 스타일 개선 ------------------------------------------ */
-.markdown-content {
-  /* 기본 스타일 리셋 */
+/* 사용자 이미지 전용 메시지 ----------------------------------- */
+.user-image-only {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
-.markdown-content h1,
-.markdown-content h2,
-.markdown-content h3,
-.markdown-content h4,
-.markdown-content h5,
-.markdown-content h6 {
-  margin: 0 0 12px 0;
-  font-weight: 600;
-  color: #1a1a1a;
+.user-image-only img {
+  max-width: 70%;
+  max-height: 300px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.markdown-content h1 {
-  font-size: 24px;
-  border-bottom: 2px solid #e1e5e9;
-  padding-bottom: 8px;
+/* 마크다운 스타일 ---------------------------------------------- */
+.message.bot .markdown-content {
+  color: #333 !important;
+  line-height: 1.8;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.message.bot .markdown-content p,
+.message.bot .markdown-content li {
+  line-height: 1.8;
+}
+
+.message.bot .markdown-content h1,
+.message.bot .markdown-content h2,
+.message.bot .markdown-content h3,
+.message.bot .markdown-content h4,
+.message.bot .markdown-content h5,
+.message.bot .markdown-content h6 {
+  margin: 0 0 12px 0 !important;
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+}
+
+.message.bot .markdown-content h1 {
+  font-size: 24px !important;
+  border-bottom: 2px solid #e1e5e9 !important;
+  padding-bottom: 8px !important;
 }
 
 .markdown-content h2 {
@@ -382,9 +457,13 @@ export default {
   font-size: 16px;
 }
 
-.markdown-content p {
-  margin: 0 0 12px 0;
-  white-space: pre-wrap;
+.message.bot .markdown-content p {
+  margin: 0 0 12px 0 !important;
+  white-space: pre-wrap !important;
+}
+
+.message.bot .markdown-content p:first-child {
+  margin-top: 0 !important;
 }
 
 .markdown-content ul,
@@ -397,21 +476,21 @@ export default {
   margin: 4px 0;
 }
 
-.markdown-content strong {
-  font-weight: 600;
-  color: #1a1a1a;
+.message.bot .markdown-content strong {
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
 }
 
 .markdown-content em {
   font-style: italic;
 }
 
-.markdown-content code {
-  background: #f6f8fa;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 85%;
+.message.bot .markdown-content code {
+  background: #f6f8fa !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 85% !important;
 }
 
 .markdown-content pre {
@@ -462,7 +541,7 @@ export default {
   font-weight: 600;
 }
 
-/* PDF 다운로드 버튼 ---------------------------------------------- */
+/* PDF 버튼 ------------------------------------------------------- */
 .pdf-download {
   display: flex;
 }
@@ -474,25 +553,25 @@ export default {
   padding: 8px 12px;
   font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color .2s;
 }
 
 .pdf-btn:hover {
   background: #e1e5e9;
 }
 
-/* 입력창 폭/위치 ------------------------------------------------ */
+/* 입력창 위치 ---------------------------------------------------- */
 .chat-input {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 40px;
-  max-width: 900px; /* 메시지와 동일한 폭 */
+  max-width: 900px;
   margin: 0 auto;
   z-index: 10;
 }
 
-/* 스크롤바 스타일 (선택사항) ------------------------------------- */
+/* 스크롤바 ------------------------------------------------------- */
 .messages::-webkit-scrollbar {
   width: 6px;
 }
@@ -510,7 +589,16 @@ export default {
   background: #b8c2cc;
 }
 
-/* 반응형 대응 --------------------------------------------------- */
+/* 마크다운 수평선 (---) 스타일 */
+.message.bot .markdown-content hr {
+  margin: 24px 0 !important;
+  border: none !important;
+  height: 1px !important;
+  background-color: #e1e5e9 !important;
+  border-radius: 1px;
+}
+
+/* 반응형 --------------------------------------------------------- */
 @media (max-width: 768px) {
   .messages {
     padding: 16px 12px;
