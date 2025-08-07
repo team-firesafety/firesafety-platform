@@ -40,7 +40,10 @@
     <div class="profile-section" v-if="authStore.isLoggedIn">
       <div class="profile-info">
         <img src="@/assets/profile.png" alt="프로필" class="profile-image" />
-        <span class="profile-text">{{ authStore.userId }}님 안녕하세요!</span>
+        <div class="profile-content">
+          <span class="profile-text">{{ authStore.userId }}님 안녕하세요!</span>
+          <button @click="logout" class="logout-button">로그아웃</button>
+        </div>
       </div>
     </div>
 
@@ -75,6 +78,10 @@ export default {
     },
     newChat() {
       this.$emit('new-chat')
+    },
+    logout() {
+      authStore.logout()
+      this.$router.push({ name: 'Login' })
     }
   }
 }
@@ -184,10 +191,32 @@ export default {
   object-fit: cover;
 }
 
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
 .profile-text {
   font-size: 14px;
   color: #333333;
   font-weight: 500;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: #777777;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.3s ease;
+}
+
+.logout-button:hover {
+  color: #2744FF;
 }
 
 /* -------------------------------------------------- */
