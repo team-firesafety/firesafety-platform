@@ -50,11 +50,13 @@ export default {
   data() {
     return {
       historyItems: [
-        '화재 예방 점검 절차',
-        '화재 신고 접수 절차',
-        '화재 예방 점검 절차',
-        '화재 신고 접수 절차',
-        '화재 예방 점검 절차'
+        '화재 예방 점검 항목 체크리스트 알려줘',
+        '소화기 점검 주기 알려줘',
+        '화재 신고는 어떻게 접수하나요?',
+        '예방 점검 절차 다시 설명해줘',
+        '비상 대피 요령도 알려줘',
+        '지난 점검 결과 요약해줘',
+        '신고 접수 공문서 서류 작성해'
       ]
     }
   },
@@ -112,7 +114,7 @@ export default {
   list-style: none;
   margin: 0;
   padding: 0 0 0 20px;   /* ← 메뉴 왼쪽 들여쓰기 */
-  margin-bottom: var(--nav-history-gap, 0px);
+  margin-bottom: 0px;
 }
 
 .menu-item {
@@ -121,19 +123,19 @@ export default {
   font-size: 16px;        /* ← 메뉴 글자 크기 */
   color: #333333;
   cursor: pointer;
-  margin-bottom: var(--menu-item-gap, 20px);  /* ← 메뉴 항목 간 간격 */
+  margin-bottom: 20px;  /* 메뉴 항목 간 간격 */
   margin-left: 20px;
 }
 
 .menu-history {
   margin-top: 50px;    /* records 항목만 아래로 추가 밀기 */
-  margin-bottom: 10;    /* 필요시 조정 */
+  margin-bottom: 10px;    /* 필요시 조정 */
 }
 
 .menu-icon {
   width: 20px;
   height: 20px;
-  margin-right: var(--icon-text-gap, 8px);   /* ← 아이콘과 텍스트 간격 */
+  margin-right: 8px;   /* 아이콘과 텍스트 간격 */
 }
 
 /* -------------------------------------------------- */
@@ -143,7 +145,7 @@ export default {
 .history-list {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px;        /* ← 히스토리 좌우 여백 */
+  padding: 20px 20px 0 20px;        /* 상단 여백 20px, 좌우 여백 20px */
 }
 .history-item {
   font-size: 16px;        /* ← 히스토리 글자 크기 */
