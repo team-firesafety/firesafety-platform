@@ -1,7 +1,7 @@
 <template>
   <div class="signup-container">
     <div class="signup-form">
-      <h1 class="signup-title">회원가입</h1>
+      <img src="@/assets/signup-title.png" alt="회원가입" class="signup-title-image" />
       
       <form @submit.prevent="handleSignup" class="form">
         <div class="input-group">
@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import authStore from '@/store/auth.js'
+
 export default {
   name: 'SignupPage',
   data() {
@@ -85,8 +87,7 @@ export default {
   methods: {
     handleSignup() {
       if (this.isFormValid) {
-        localStorage.setItem('isLoggedIn', 'true')
-        localStorage.setItem('userId', this.signupData.id)
+        authStore.login(this.signupData.id)
         this.$router.push({ name: 'Main' })
       }
     }
@@ -104,20 +105,16 @@ export default {
 }
 
 .signup-form {
-  background: white;
-  padding: 60px 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  padding: 0 20px;
 }
 
-.signup-title {
-  font-size: 32px;
-  font-weight: 600;
-  color: #2744FF;
-  text-align: center;
-  margin-bottom: 40px;
+.signup-title-image {
+  height: 40px;
+  width: auto;
+  display: block;
+  margin: 0 auto 40px auto;
 }
 
 .form {

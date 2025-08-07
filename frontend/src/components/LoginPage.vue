@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="login-form">
-      <h1 class="login-title">로그인</h1>
+      <img src="@/assets/login-title.png" alt="로그인" class="login-title-image" />
       
       <form @submit.prevent="handleLogin" class="form">
         <div class="input-group">
@@ -39,6 +39,8 @@
 </template>
 
 <script>
+import authStore from '@/store/auth.js'
+
 export default {
   name: 'LoginPage',
   data() {
@@ -52,8 +54,7 @@ export default {
   methods: {
     handleLogin() {
       if (this.credentials.id && this.credentials.password) {
-        localStorage.setItem('isLoggedIn', 'true')
-        localStorage.setItem('userId', this.credentials.id)
+        authStore.login(this.credentials.id)
         this.$router.push({ name: 'Main' })
       }
     }
@@ -71,20 +72,16 @@ export default {
 }
 
 .login-form {
-  background: white;
-  padding: 60px 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  padding: 0 20px;
 }
 
-.login-title {
-  font-size: 32px;
-  font-weight: 600;
-  color: #2744FF;
-  text-align: center;
-  margin-bottom: 40px;
+.login-title-image {
+  height: 40px;
+  width: auto;
+  display: block;
+  margin: 0 auto 40px auto;
 }
 
 .form {
