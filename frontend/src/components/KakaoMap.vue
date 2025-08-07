@@ -119,24 +119,44 @@ export default {
     /* ───────── 지도 + dim ───────── */
     createMap(center) {
       this.map = new this.kakao.maps.Map(this.$refs.map, {center, level: 3});
-      this.kakao.maps.event.addListener(this.map, 'tilesloaded', () => this.dimTiles());
+      this.kakao.maps.event.addListener(this.map, 'tilesloaded', () => this.addDarkOverlay());
     },
-    dimTiles() {
+    addDarkOverlay() {
       const node = this.map.getNode();
-      const tile = node.querySelector('.bg_tile') || node.querySelector('.tile');
-      if (!tile || tile.querySelector('.bg-dimmer')) return;
-
-      if (getComputedStyle(tile).position === 'static') tile.style.position = 'relative';
-
-      const dim = document.createElement('div');
-      dim.className = 'bg-dimmer';
-      Object.assign(dim.style, {
-        position: 'absolute',
-        inset: 0,
-        background: 'rgba(0,0,0,.35)',
-        pointerEvents: 'none'
-      });
-      tile.appendChild(dim);
+      
+      // 카카오맵의 실제 DOM 구조 디버깅
+      console.log('🔍 카카오맵 DOM 구조:');
+      console.log('메인 노드:', node);
+      console.log('자식 요소들:', [...node.children].map((child, index) => ({
+        index,
+        tag: child.tagName,
+        classes: child.className,
+        style: child.style.cssText,
+        zIndex: getComputedStyle(child).zIndex
+      })));
+      
+      // 지도 타일만 어둡게 하는 정확한 타겟팅
+      const mapContainer = node.querySelector('div[style*="position: absolute"][style*="left: 0px"][style*="top: 0px"]');
+      
+      if (mapContainer) {
+        console.log('🎯 지도 컨테이너 발견:', mapContainer);
+        console.log('지도 컨테이너 자식들:', [...mapContainer.children].map((child, index) => ({
+          index,
+          tag: child.tagName,
+          zIndex: getComputedStyle(child).zIndex || child.style.zIndex,
+          hasImages: child.querySelectorAll('img').length
+        })));
+        
+        // 실제 지도 타일이 있는 최하위 레이어에만 필터 적용
+        const tileLayer = mapContainer.querySelector('div[style*="z-index: 0"]') || 
+                         mapContainer.querySelector('div[style*="z-index: 1"]:first-child');
+        
+        if (tileLayer) {
+          console.log('🗺️ 타일 레이어 발견:', tileLayer);
+          tileLayer.style.filter = 'brightness(0.7)'; // 지도 타일만 어둡게
+          console.log('✅ 지도 타일에 brightness 필터 적용');
+        }
+      }
     },
 
     /* ───────── 위험도 구간(50/80/95%) ───────── */
@@ -169,7 +189,7 @@ export default {
         const marker = new kakao.maps.Marker({
           position: new kakao.maps.LatLng(b.lat, b.lon),
           image: this.makeDot(color),
-          zIndex: 5
+          zIndex: 10
         });
         marker.setMap(this.map);
 
@@ -234,12 +254,23 @@ export default {
 
     /* ───────── 클러스터 ───────── */
     installClusterer() {
-      this.clusterer = new this.kakao.maps.MarkerClusterer({
-        map: this.map,
-        markers: this.markers.map(m => m.marker),
-        minLevel: 6,
-        averageCenter: true
-      });
+      // MarkerClusterer 사용 가능 여부 확인
+      if (this.kakao.maps.MarkerClusterer) {
+        try {
+          this.clusterer = new this.kakao.maps.MarkerClusterer({
+            map: this.map,
+            markers: this.markers.map(m => m.marker),
+            minLevel: 6,
+            averageCenter: true
+          });
+        } catch (error) {
+          console.warn('MarkerClusterer 생성 실패:', error);
+          this.clusterer = null;
+        }
+      } else {
+        console.warn('MarkerClusterer를 사용할 수 없습니다.');
+        this.clusterer = null;
+      }
     },
 
     /* ───────── 점 마커 이미지 ───────── */
@@ -247,12 +278,18 @@ export default {
       const cv = document.createElement('canvas');
       cv.width = cv.height = DOT;
       const ctx = cv.getContext('2d');
-      ctx.shadowColor = 'rgba(0,0,0,.18)';
+      
+      // 부드러운 그림자
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
       ctx.shadowBlur = 4;
+      
+      // 투명도가 있는 마커 색상 (외곽선 제거)
+      ctx.globalAlpha = 0.85; // 85% 불투명도 (15% 투명)
       ctx.fillStyle = color;
       ctx.beginPath();
       ctx.arc(DOT / 2, DOT / 2, R, 0, Math.PI * 2);
       ctx.fill();
+      
       return new this.kakao.maps.MarkerImage(
           cv.toDataURL(),
           new this.kakao.maps.Size(DOT, DOT),
@@ -267,7 +304,9 @@ export default {
       this.markers.forEach(({marker, color}) =>
           marker.setVisible(this.shownColors.includes(color))
       );
-      this.clusterer.redraw();
+      if (this.clusterer) {
+        this.clusterer.redraw();
+      }
     }
   }
 };
