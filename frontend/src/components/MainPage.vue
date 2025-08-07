@@ -7,21 +7,23 @@
       
       <!-- 기본 메인 컨텐츠 -->
       <main v-else class="main-content">
-        <!-- 떠다니는 캐릭터 + 그림자 (종전 그대로) -->
+        <!-- 떠다니는 소방관 캐릭터 + 그림자 -->
         <div class="character-wrapper">
           <img
             class="character"
             src="@/assets/character.png"
-            alt="Animated Character"
+            alt="소방관 캐릭터"
           />
           <div class="shadow"></div>
         </div>
 
-        <!-- 그라데이션 텍스트 -->
-        <p class="subtitle">필요하신 게 있을까요?</p>
+        <!-- 텍스트 -->
+        <p class="subtitle">필요한게 있으실까요?</p>
 
         <!-- 공통 ChatInput 컴포넌트 사용 -->
-        <ChatInput @send="goToChat" bottom="160px"/>
+        <div class="chat-input-wrapper">
+          <ChatInput @send="goToChat" class="main-page-input" ref="chatInput"/>
+        </div>
       </main>
     </div>
   </div>
@@ -41,10 +43,17 @@ export default {
     }
   },
   methods: {
-    goToChat(query) {
-      // 입력된 텍스트를 쿼리파라미터로 전달하며 /chat 으로 이동
-      console.log('MainPage goToChat 받은 텍스트:', query)
-      this.$router.push({ name: 'Chat', query: { q: query } })
+    goToChat(messageData) {
+      // ChatInput에서 받은 데이터가 객체인 경우 텍스트만 추출
+      const queryText = typeof messageData === 'string' ? messageData : messageData.text;
+      console.log('MainPage goToChat 받은 데이터:', messageData, '→ 쿼리 텍스트:', queryText)
+      
+      // 이미지가 첨부된 경우 경고 메시지 (MainPage에서는 이미지 지원 안함)
+      if (typeof messageData === 'object' && messageData.image) {
+        console.warn('MainPage에서는 이미지 첨부를 지원하지 않습니다. 텍스트만 전송됩니다.');
+      }
+      
+      this.$router.push({ name: 'Chat', query: { q: queryText } })
     },
     showIntroPage() {
       this.isIntroVisible = true
@@ -85,17 +94,22 @@ export default {
 }
 
 .main-content {
-  margin-top: 180px;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 80px 40px 40px 40px; /* 하단 패딩 원래대로 */
+  position: relative;
+  min-height: 0;
 }
 
 /* ── 캐릭터 + 그림자 ── */
 .character-wrapper {
   position: relative;
   display: inline-block;
+  margin-bottom: 40px;
+  z-index: 1;
 }
 
 .character {
@@ -144,11 +158,34 @@ export default {
 
 /* 그라데이션 텍스트 */
 .subtitle {
-  margin-top: 60px;
+  margin-bottom: 20px; /* 간격을 줄여서 채팅창을 더 위로 */
   font-size: 32px;
   font-weight: 500;
-  background: linear-gradient(90deg, #0022FF 0%, #5664FF 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #0022FF !important;
+  text-align: center;
+  white-space: nowrap;
+  display: block;
+  visibility: visible;
+}
+
+/* MainPage 전용 ChatInput 스타일 */
+.chat-input-wrapper {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto; /* 하단 여백 제거 */
+}
+
+.main-page-input {
+  position: relative !important;
+  width: 100% !important;
+  margin: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+
+/* 이미지 미리보기 있을 때 추가 여백 */
+.main-page-input.has-preview {
+  margin-bottom: 30px !important; /* 하단 여백을 더 늘림 */
 }
 </style>

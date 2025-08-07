@@ -17,6 +17,7 @@ export default {
 .loading-dots {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   margin: 0;
 }
