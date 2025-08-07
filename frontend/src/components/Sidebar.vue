@@ -36,7 +36,18 @@
       </ul>
     </section>
 
-    <!-- 4) 푸터 -->
+    <!-- 4) 프로필 영역 -->
+    <div class="profile-section" v-if="authStore.isLoggedIn">
+      <div class="profile-info">
+        <img src="@/assets/profile.png" alt="프로필" class="profile-image" />
+        <div class="profile-content">
+          <span class="profile-text">{{ authStore.userId }}님 안녕하세요!</span>
+          <button @click="logout" class="logout-button">로그아웃</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5) 푸터 -->
     <div class="sidebar-footer">
       소방 업무 지원 챗봇 v1.0
     </div>
@@ -45,10 +56,13 @@
 </template>
 
 <script>
+import authStore from '@/store/auth.js'
+
 export default {
   name: 'Sidebar',
   data() {
     return {
+      authStore,
       historyItems: [
         '화재 예방 점검 항목 체크리스트 알려줘',
         '소화기 점검 주기 알려줘',
@@ -66,6 +80,10 @@ export default {
     },
     newChat() {
       this.$emit('new-chat')
+    },
+    logout() {
+      authStore.logout()
+      this.$router.push({ name: 'Login' })
     }
   }
 }
@@ -154,7 +172,57 @@ export default {
 }
 
 /* -------------------------------------------------- */
-/* 4) 푸터                                            */
+/* 4) 프로필 영역                                      */
+/* -------------------------------------------------- */
+.profile-section {
+  padding: 20px;
+  border-top: 1px solid #e1e5e9;
+  margin-bottom: 0;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.profile-text {
+  font-size: 14px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: #777777;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.3s ease;
+}
+
+.logout-button:hover {
+  color: #2744FF;
+}
+
+/* -------------------------------------------------- */
+/* 5) 푸터                                            */
 /* -------------------------------------------------- */
 .sidebar-footer {
   height: 60px;           /* ← 푸터 높이 (60px 고정) */
