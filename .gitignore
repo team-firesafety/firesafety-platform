@@ -1,97 +1,96 @@
-# Python 가상환경 및 캐시
-venv/
-.venv/
-env/
-ENV/
-fire-safety-env/
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-.Python
 
+!.vscode/extensions.json
+# IDE 설정 파일
+# Node/Frontend 관련
+# OS 생성 파일
+# PostgreSQL 데이터
+# PyInstaller
+# Python 가상환경 및 캐시
+# Python 캐시 파일
+# 가상환경
+# 단위 테스트 / 커버리지 보고서
+# 대용량 데이터 파일
+# 대용량 데이터 파일 (259MB)
+# 데이터베이스 파일
+# 로그 파일
+# 배포 관련 파일 및 빌드 디렉토리
+# 배포 파일
+# 임시 파일
+# 테스트 및 커버리지
 # 환경 변수 파일
+*.cover
+*.db
+*.egg
+*.egg-info/
+*.local
+*.log
+*.manifest
+*.njsproj
+*.ntvs*
+*.py[cod]
+*.pyd
+*.pyo
+*.sln
+*.so
+*.spec
+*.sqlite3
+*.suo
+*.sw?
+*.swo
+*.swp
+*~
+.DS_Store
+.DS_Store?
+.Python
+.Spotlight-V100
+.Trashes
+._*
+.cache
+.coverage
+.coverage.*
+.eggs/
 .env
 .env.local
 .env.production
-
-# 배포 관련 파일 및 빌드 디렉토리
+.hypothesis/
+.idea/
+.installed.cfg
+.pytest_cache/
+.tmp/
+.tox/
+.venv/
+.vscode/
+ENV/
+MANIFEST
+Thumbs.db
+__pycache__/
+backend/data/fire_safety_data/
 build/
-dist/
+coverage.xml
 develop-eggs/
+dist-ssr/
+dist/
 downloads/
 eggs/
-.eggs/
+ehthumbs.db
+env/
+fire-safety-env/
+htmlcov/
+lerna-debug.log*
 lib/
 lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-*.spec
-
-# Node/Frontend 관련
-node_modules/
-dist-ssr/
-*.local
-
-# 로그 파일
 logs/
-*.log
+node_modules/
+nosetests.xml
 npm-debug.log*
+parts/
+pg_data/
+pnpm-debug.log*
+sdist/
+temp/
+tmp/
+var/
+venv/
+wheels/
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# 테스트 및 커버리지
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# IDE 설정 파일
-.vscode/
-!.vscode/extensions.json
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*.swp
-*.swo
-*~
-
-# OS 생성 파일
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# 데이터베이스 파일
-*.db
-*.sqlite3
-pg_data/
-
-# 임시 파일
-tmp/
-temp/
-.tmp/
-
-# 대용량 데이터 파일
-backend/data/fire_safety_data/
