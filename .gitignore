@@ -1,0 +1,96 @@
+
+!.vscode/extensions.json
+# IDE 설정 파일
+# Node/Frontend 관련
+# OS 생성 파일
+# PostgreSQL 데이터
+# PyInstaller
+# Python 가상환경 및 캐시
+# Python 캐시 파일
+# 가상환경
+# 단위 테스트 / 커버리지 보고서
+# 대용량 데이터 파일
+# 대용량 데이터 파일 (259MB)
+# 데이터베이스 파일
+# 로그 파일
+# 배포 관련 파일 및 빌드 디렉토리
+# 배포 파일
+# 임시 파일
+# 테스트 및 커버리지
+# 환경 변수 파일
+*.cover
+*.db
+*.egg
+*.egg-info/
+*.local
+*.log
+*.manifest
+*.njsproj
+*.ntvs*
+*.py[cod]
+*.pyd
+*.pyo
+*.sln
+*.so
+*.spec
+*.sqlite3
+*.suo
+*.sw?
+*.swo
+*.swp
+*~
+.DS_Store
+.DS_Store?
+.Python
+.Spotlight-V100
+.Trashes
+._*
+.cache
+.coverage
+.coverage.*
+.eggs/
+.env
+.env.local
+.env.production
+.hypothesis/
+.idea/
+.installed.cfg
+.pytest_cache/
+.tmp/
+.tox/
+.venv/
+.vscode/
+ENV/
+MANIFEST
+Thumbs.db
+__pycache__/
+backend/data/fire_safety_data/
+build/
+coverage.xml
+develop-eggs/
+dist-ssr/
+dist/
+downloads/
+eggs/
+ehthumbs.db
+env/
+fire-safety-env/
+htmlcov/
+lerna-debug.log*
+lib/
+lib64/
+logs/
+node_modules/
+nosetests.xml
+npm-debug.log*
+parts/
+pg_data/
+pnpm-debug.log*
+sdist/
+temp/
+tmp/
+var/
+venv/
+wheels/
+yarn-debug.log*
+yarn-error.log*
