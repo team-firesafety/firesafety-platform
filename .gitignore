@@ -17,6 +17,10 @@
 # 배포 파일
 # 임시 파일
 # 테스트 및 커버리지
+# AI/ML 생성 파일
+backend/vectorstore_FAISS/
+*.faiss
+*.pkl
 # 환경 변수 파일
 *.cover
 *.db

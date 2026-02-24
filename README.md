@@ -246,4 +246,46 @@ curl -X POST http://localhost:8000/chat \
 
 ---
 
+## 🔄 Git 히스토리 마이그레이션 안내
+
+**업데이트 날짜**: 2026년 2월 24일
+
+### 문제 발생
+- **발생일**: 2026년 2월 4일 develop-merged 브랜치 병합 시
+- **내용**: 대용량 AI vectorstore 파일(47.3MB)이 의도치 않게 커밋됨
+  - `backend/vectorstore_FAISS/index.faiss` (32.1MB)
+  - `backend/vectorstore_FAISS/index.pkl` (15.2MB)
+
+### 처리 내용
+- Git 히스토리에서 vectorstore 파일 완전 제거 (git filter-repo 사용)
+- `.gitignore`에 `backend/vectorstore_FAISS/` 추가
+- 저장소 크기 47MB 감소
+
+### ⚠️ 기존 로컬 작업자 필수 작업
+
+**2026년 2월 24일 이전에 main 브랜치를 pull 받은 경우:**
+
+```bash
+# 1. 로컬 변경사항 백업 (작업 중인 내용이 있다면)
+git stash
+
+# 2. 원격 히스토리 동기화
+git fetch origin
+git reset --hard origin/main
+
+# 3. Vectorstore 재생성 (RAG 기능 사용 시 필수)
+cd backend
+python -m backend.scripts.build_vectorstore
+
+# 4. 백업한 작업 복원
+git stash pop
+```
+
+**주의사항:**
+- `git reset --hard`는 로컬 커밋을 삭제하므로, 미푸시 작업은 백업 필수
+- vectorstore는 로컬에서만 생성하고 Git에 커밋하지 마세요
+- 소스 코드와 폴더 구조는 변경 없음 (커밋 해시만 변경됨)
+
+---
+
 **소담** - 소방 업무를 담다
